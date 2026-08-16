@@ -1,0 +1,10 @@
+hotel_id,name,city,tier,price_per_night_inr,star_rating,review_score,amenities,lat,lon
+HTL_GOA_01,Taj Fort Aguada Resort & Spa,Goa,Luxury,18000,5.0,4.8,"Beachfront, Infinity Pool, Spa, Free Breakfast, Ocean View",15.494,73.7745
+HTL_GOA_02,BloomSuites Calangute,Goa,Mid-Range,4200,4.0,4.3,"Swimming Pool, Wi-Fi, Restaurant, Bar, AC, Close to Beach",15.541,73.762
+HTL_GOA_03,Zostel Goa (Morjim / Anjuna),Goa,Budget / Hostel,1200,3.5,4.5,"Dorm & Private Rooms, Cafe, Co-working space, Rooftop, Games",15.611,73.738
+HTL_JPR_01,Rambagh Palace,Jaipur,Luxury,35000,5.0,4.9,"Heritage Palace, Royal Dining, Peacock Gardens, Butler Service",26.8979,75.808
+HTL_JPR_02,Umaid Bhawan Heritage Hotel,Jaipur,Mid-Range,3800,4.0,4.4,"Traditional Decor, Swimming Pool, Rooftop Restaurant, Wi-Fi",26.932,75.795
+HTL_JPR_03,Moustache Hostel Jaipur,Jaipur,Budget / Hostel,950,3.5,4.4,"Rooftop Cafe, Dorms, Female-only dorms, Social events, AC",26.918,75.799
+HTL_KER_01,Kumarakom Lake Resort,Alleppey,Luxury,22000,5.0,4.8,"Meandering Pool, Ayurvedic Spa, Backwater Villa, Traditional Dining",9.6178,76.4282
+HTL_KER_02,Grand Hyatt Kochi Bolgatty,Kochi,Luxury,11500,5.0,4.7,"Waterfront, Marina, Spa, Multiple Dining, Helipad, Luxury",9.988,76.267
+HTL_KER_03,Tea Valley Resort Munnar,Munnar,Mid-Range,3600,3.8,4.2,"Tea garden view, Campfire, Restaurant, Balcony cottages",10.052,77.062

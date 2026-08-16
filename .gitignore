@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+.pnp
+.pnp.js
+
+# Testing and build outputs
+frontend/dist/
+frontend/build/
+.pytest_cache/
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Raw Archives & Local Databases
+*.zip
+*.tar.gz
+*.db
+*.sqlite3
+
+# Environment & Logs
+.env
+.env.local
+*.log
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

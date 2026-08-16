@@ -1,0 +1,53 @@
+{
+  "generated_at": "2026-08-14 21:51:43",
+  "models": {
+    "flight_price_predictor": {
+      "model_type": "RandomForestRegressor (60 trees, max_depth=16)",
+      "features": [
+        "airline",
+        "source_city",
+        "destination_city",
+        "departure_time",
+        "stops",
+        "arrival_time",
+        "class",
+        "duration",
+        "days_left"
+      ],
+      "train_samples": 32000,
+      "test_samples": 8000,
+      "r2_score": 0.9738,
+      "mae_inr": 1912.04,
+      "rmse_inr": 3640.8,
+      "status": "Trained & Serialized",
+      "file_path": "models/flight_price_model.joblib"
+    },
+    "flight_delay_classifier": {
+      "model_type": "RandomForestClassifier",
+      "accuracy": 1.0,
+      "f1_score": 1.0,
+      "classes": [
+        "High",
+        "Low",
+        "Moderate"
+      ],
+      "status": "Trained & Serialized",
+      "file_path": "models/flight_delay_model.joblib"
+    },
+    "hotel_sentiment_nlp": {
+      "model_type": "TF-IDF + LogisticRegression",
+      "vocabulary_size": 5000,
+      "accuracy": 0.8622,
+      "f1_score": 0.8402,
+      "status": "Trained & Serialized",
+      "file_path": "models/hotel_sentiment_model.joblib"
+    },
+    "hybrid_recommender": {
+      "model_type": "Content-Based + Collaborative Hybrid Feature Index",
+      "indexed_pois": 13,
+      "feature_dim": 259,
+      "status": "Indexed & Serialized",
+      "file_path": "models/recommender_bundle.joblib"
+    }
+  }
+}

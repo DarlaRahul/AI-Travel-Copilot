@@ -1,0 +1,54 @@
+[
+  {
+    "intent": "plan_trip",
+    "sample_queries": [
+      "Plan a 5-day trip to Goa for 2 people with a ₹40,000 budget.",
+      "I want to visit Jaipur for 3 days next weekend under 20k rupees.",
+      "Can you make a honeymoon itinerary for Kerala for 6 days?",
+      "गोआ के लिए 5 दिन की ट्रिप प्लान करो 40,000 के बजट में।"
+    ],
+    "extracted_entities": {
+      "destination": "Goa",
+      "duration_days": 5,
+      "travelers_count": 2,
+      "budget_inr": 40000,
+      "persona": "Couples / Leisure"
+    }
+  },
+  {
+    "intent": "flight_status_check",
+    "sample_queries": [
+      "Is my flight 6E-204 to Goa on time?",
+      "Check delay status for IndiGo flight 204.",
+      "क्या मेरी गोआ जाने वाली फ्लाइट लेट है?"
+    ],
+    "extracted_entities": {
+      "flight_number": "6E-204",
+      "action": "check_disruption"
+    }
+  },
+  {
+    "intent": "rebook_disruption",
+    "sample_queries": [
+      "My flight got cancelled, suggest alternative flights to Jaipur immediately.",
+      "Find nearest available hotels in Goa because our flight was delayed till tomorrow.",
+      "फ्लाइट कैंसिल हो गई, दूसरी फ्लाइट बताओ।"
+    ],
+    "extracted_entities": {
+      "action": "rebook_assistance",
+      "priority": "urgent"
+    }
+  },
+  {
+    "intent": "budget_optimization",
+    "sample_queries": [
+      "How can I reduce my Goa trip cost from 50k to 35k without missing beaches?",
+      "Show me cheap hostel alternatives in Jaipur.",
+      "बजट कैसे कम करें?"
+    ],
+    "extracted_entities": {
+      "action": "knapsack_budget_prune",
+      "target_saving_pct": 30
+    }
+  }
+]

@@ -1,0 +1,52 @@
+{
+  "budget_split_rules": {
+    "Budget_Backpacker": {
+      "stay_pct": 25,
+      "transport_pct": 35,
+      "activities_pct": 20,
+      "food_pct": 15,
+      "buffer_pct": 5
+    },
+    "Mid_Range_Explorer": {
+      "stay_pct": 35,
+      "transport_pct": 25,
+      "activities_pct": 20,
+      "food_pct": 15,
+      "buffer_pct": 5
+    },
+    "Luxury_Leisure": {
+      "stay_pct": 50,
+      "transport_pct": 20,
+      "activities_pct": 15,
+      "food_pct": 10,
+      "buffer_pct": 5
+    }
+  },
+  "city_daily_living_cost_estimates_inr": {
+    "Goa": {
+      "budget_per_day": 2000,
+      "mid_per_day": 5000,
+      "luxury_per_day": 15000
+    },
+    "Jaipur": {
+      "budget_per_day": 1800,
+      "mid_per_day": 4500,
+      "luxury_per_day": 20000
+    },
+    "Munnar_Kochi": {
+      "budget_per_day": 2200,
+      "mid_per_day": 5500,
+      "luxury_per_day": 18000
+    },
+    "Manali": {
+      "budget_per_day": 2000,
+      "mid_per_day": 4800,
+      "luxury_per_day": 14000
+    },
+    "Dubai": {
+      "budget_per_day": 8000,
+      "mid_per_day": 18000,
+      "luxury_per_day": 45000
+    }
+  }
+}
