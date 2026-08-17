@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Plane, Mail, Lock, User as UserIcon, Eye, EyeOff, Sparkles, ArrowRight, AlertCircle, Compass, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { APP_CONFIG } from '../config/appConfig';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,14 +47,10 @@ export const RegisterPage: React.FC = () => {
       navigate(redirectUrl);
     } catch (err: any) {
       console.error("Registration error:", err);
-      if (err.code === "ERR_NETWORK" || !err.response) {
-        setError("Unable to connect to the backend server. Please make sure the backend is running at http://localhost:8000.");
-      } else {
-        const detail = err.response?.data?.detail || "Registration failed. Please try a different email.";
-        setError(detail);
-        if (typeof detail === 'string' && (detail.toLowerCase().includes("already exists") || detail.toLowerCase().includes("log in") || detail.toLowerCase().includes("sign in"))) {
-          setIsExistingAccount(true);
-        }
+      const detail = err.message || err.response?.data?.detail || "Registration failed. Please try a different email.";
+      setError(detail);
+      if (typeof detail === 'string' && (detail.toLowerCase().includes("already exists") || detail.toLowerCase().includes("log in") || detail.toLowerCase().includes("sign in"))) {
+        setIsExistingAccount(true);
       }
     } finally {
       setLoading(false);
@@ -61,22 +58,22 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-between text-slate-900">
+    <div className="min-h-screen bg-[var(--background)] flex flex-col justify-between text-[#221c17] selection:bg-[#c25e38] selection:text-white">
       {/* Header Bar */}
       <header className="max-w-7xl mx-auto w-full px-6 py-6 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#c25e38] to-[#c88842] flex items-center justify-center text-white shadow-md shadow-[#c25e38]/20 group-hover:scale-105 transition duration-200">
             <Plane className="w-5 h-5 -rotate-45" />
           </div>
           <div>
-            <h1 className="font-bold text-lg text-slate-900 leading-tight">AI Travel</h1>
-            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Copilot</p>
+            <h1 className="font-bold text-lg text-[#221c17] leading-tight font-serif">{APP_CONFIG.name}</h1>
+            <p className="text-[10px] font-bold text-[#c25e38] uppercase tracking-wider font-mono">{APP_CONFIG.tagline.split(' ')[0]} Travel</p>
           </div>
         </Link>
 
-        <div className="text-xs font-medium text-slate-500">
+        <div className="text-xs font-medium text-[#695e52]">
           Already have an account?{' '}
-          <Link to={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-blue-600 font-bold hover:underline">
+          <Link to={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-[#c25e38] font-bold hover:underline font-serif">
             Sign In
           </Link>
         </div>
@@ -84,14 +81,14 @@ export const RegisterPage: React.FC = () => {
 
       {/* Center Auth Card */}
       <main className="flex-1 flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/50 p-8 space-y-6">
+        <div className="max-w-md w-full bg-[#fffefb] rounded-3xl border border-[#e3d6c1] shadow-xl shadow-[#221c17]/5 p-8 space-y-6">
           <div className="text-center space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              <span>Create Your Persona</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#faeee7] text-[#c25e38] text-xs font-bold font-mono">
+              <Sparkles className="w-3.5 h-3.5 text-[#c88842]" />
+              <span>Create Your Travel Profile</span>
             </div>
-            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Create an Account</h2>
-            <p className="text-xs text-slate-500 font-medium">
+            <h2 className="text-2xl font-extrabold text-[#221c17] tracking-tight font-serif">Create an Account</h2>
+            <p className="text-xs text-[#695e52] font-medium">
               Start planning smarter with autonomous AI itineraries and budget optimization.
             </p>
           </div>
@@ -108,7 +105,7 @@ export const RegisterPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigate(`/login${searchParams.toString() ? `?${searchParams.toString()}` : ''}`)}
-                  className="w-full mt-2 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5"
+                  className="w-full mt-2 py-2 rounded-full bg-[#c25e38] hover:bg-[#a84c29] text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5 font-serif"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Sign In to Existing Account</span>
@@ -120,11 +117,11 @@ export const RegisterPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             {/* Full Name */}
             <div>
-              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block font-bold text-[#695e52] uppercase tracking-wider mb-1.5 font-mono">
                 Full Name
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#998c7e]">
                   <UserIcon className="w-4 h-4" />
                 </div>
                 <input
@@ -132,19 +129,19 @@ export const RegisterPage: React.FC = () => {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Chandu"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 font-medium bg-slate-50/50 outline-none transition"
+                  placeholder="e.g. Rahul Darla"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#e3d6c1] focus:border-[#c25e38] text-[#221c17] font-medium bg-[#f5eee2]/40 outline-none transition font-serif"
                 />
               </div>
             </div>
 
             {/* Email Field */}
             <div>
-              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block font-bold text-[#695e52] uppercase tracking-wider mb-1.5 font-mono">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#998c7e]">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -153,7 +150,7 @@ export const RegisterPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 font-medium bg-slate-50/50 outline-none transition"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#e3d6c1] focus:border-[#c25e38] text-[#221c17] font-medium bg-[#f5eee2]/40 outline-none transition font-mono"
                 />
               </div>
             </div>
@@ -161,11 +158,11 @@ export const RegisterPage: React.FC = () => {
             {/* Passwords Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block font-bold text-[#695e52] uppercase tracking-wider mb-1.5 font-mono">
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#998c7e]">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -174,17 +171,17 @@ export const RegisterPage: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Min 4 chars"
-                    className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 font-medium bg-slate-50/50 outline-none transition"
+                    className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-[#e3d6c1] focus:border-[#c25e38] text-[#221c17] font-medium bg-[#f5eee2]/40 outline-none transition font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                <label className="block font-bold text-[#695e52] uppercase tracking-wider mb-1.5 font-mono">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#998c7e]">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -193,7 +190,7 @@ export const RegisterPage: React.FC = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Repeat password"
-                    className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 font-medium bg-slate-50/50 outline-none transition"
+                    className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-[#e3d6c1] focus:border-[#c25e38] text-[#221c17] font-medium bg-[#f5eee2]/40 outline-none transition font-mono"
                   />
                 </div>
               </div>
@@ -201,17 +198,17 @@ export const RegisterPage: React.FC = () => {
 
             {/* Travel Style Preference */}
             <div>
-              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block font-bold text-[#695e52] uppercase tracking-wider mb-1.5 font-mono">
                 Default Travel Style
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#998c7e]">
                   <Compass className="w-4 h-4" />
                 </div>
                 <select
                   value={travelStyle}
                   onChange={(e) => setTravelStyle(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 font-medium bg-slate-50/50 outline-none transition"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#e3d6c1] focus:border-[#c25e38] text-[#221c17] font-medium bg-[#f5eee2]/40 outline-none transition"
                 >
                   <option value="Balanced">Balanced (Mix of Sights & Relaxation)</option>
                   <option value="Relaxed">Relaxed (Slow Travel / Leisure)</option>
@@ -225,7 +222,7 @@ export const RegisterPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-sm shadow-md shadow-blue-500/25 transition flex items-center justify-center gap-2 mt-2"
+              className="w-full py-3 rounded-full bg-[#c25e38] hover:bg-[#a84c29] disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-[#c25e38]/25 transition flex items-center justify-center gap-2 mt-2 font-serif"
             >
               {loading ? (
                 <span>Creating Account...</span>
@@ -239,9 +236,9 @@ export const RegisterPage: React.FC = () => {
           </form>
 
           {/* Footer Link */}
-          <div className="text-center pt-2 text-xs text-slate-500 font-medium">
+          <div className="text-center pt-2 text-xs text-[#695e52] font-medium">
             Already have an account?{' '}
-            <Link to={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-blue-600 font-bold hover:underline">
+            <Link to={`/login${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-[#c25e38] font-bold hover:underline font-serif">
               Sign in
             </Link>
           </div>
@@ -249,8 +246,8 @@ export const RegisterPage: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto w-full px-6 py-4 text-center text-xs text-slate-400">
-        © 2026 AI Travel Copilot Inc. • Enterprise Grade JWT Authentication
+      <footer className="max-w-7xl mx-auto w-full px-6 py-4 text-center text-xs text-[#998c7e] font-mono">
+        © 2026 {APP_CONFIG.name} • Created by {APP_CONFIG.author}
       </footer>
     </div>
   );

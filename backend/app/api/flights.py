@@ -9,10 +9,14 @@ router = APIRouter(prefix="/flights", tags=["Flights & Fares"])
 
 @router.get("/search")
 def search_flights(
-    source_city: str,
-    destination_city: str,
+    source_city: Optional[str] = None,
+    destination_city: Optional[str] = None,
+    source: Optional[str] = None,
+    destination: Optional[str] = None,
     departure_date: Optional[date] = None,
+    departureDate: Optional[date] = None,
     return_date: Optional[date] = None,
+    returnDate: Optional[date] = None,
     adults: int = Query(1, ge=1, le=9),
     cabin: str = "ECONOMY",
     days_left: Optional[int] = None
@@ -21,16 +25,20 @@ def search_flights(
     Search live/test flight inventory via Amadeus provider adapter or labeled demo mode.
     Returns normalized flights with recommendation ranking badges.
     """
+    src = source_city or source or "Delhi"
+    dest = destination_city or destination or "Dubai"
+    dep_date = departure_date or departureDate
+    ret_date = return_date or returnDate
     today_val = date.today()
-    dep = departure_date if departure_date and departure_date >= today_val else today_val
-    ret = return_date if return_date and return_date >= dep else (dep if return_date else None)
+    dep = dep_date if dep_date and dep_date >= today_val else today_val
+    ret = ret_date if ret_date and ret_date >= dep else (dep if ret_date else None)
 
     dep_str = dep.isoformat()
     ret_str = ret.isoformat() if ret else None
 
     payload = provider_search_flights(
-        origin=source_city,
-        destination=destination_city,
+        origin=src,
+        destination=dest,
         departure_date=dep_str,
         return_date=ret_str,
         adults=adults,
@@ -38,8 +46,8 @@ def search_flights(
     )
 
     return {
-        "source": source_city,
-        "destination": destination_city,
+        "source": src,
+        "destination": dest,
         "departure_date": dep_str,
         "return_date": ret_str,
         "results_count": len(payload.get("results", [])),

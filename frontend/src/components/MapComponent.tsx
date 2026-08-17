@@ -50,7 +50,7 @@ const MapRecenterController: React.FC<{ center: [number, number]; zoom: number; 
 };
 
 export const MapComponent: React.FC<Props> = ({
-  center = [15.4989, 73.8278],
+  center = [25.2048, 55.2708],
   zoom = 11,
   markers = [],
   showRoute = true
@@ -59,7 +59,7 @@ export const MapComponent: React.FC<Props> = ({
   const polylinePositions = markers.map(m => [m.lat, m.lon] as [number, number]);
 
   return (
-    <div className="w-full h-full min-h-[420px] rounded-3xl overflow-hidden shadow-inner border border-slate-200/80 relative z-10">
+    <div className="w-full h-full min-h-[420px] rounded-3xl overflow-hidden shadow-sm border border-[#e3d6c1] relative z-10 bg-[#f5eee2]">
       <MapContainer
         center={effectiveCenter}
         zoom={zoom}
@@ -80,16 +80,16 @@ export const MapComponent: React.FC<Props> = ({
             icon={customIcon}
           >
             <Popup>
-              <div className="p-1.5 max-w-[200px] space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+              <div className="p-2 max-w-[220px] space-y-1 bg-[#fffefb] text-[#221c17] rounded-xl font-sans">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#c25e38] bg-[#faeee7] px-2 py-0.5 rounded-md inline-block">
                   {point.category || "Attraction"}
                 </span>
-                <h4 className="font-bold text-xs text-slate-900 leading-tight">{point.name}</h4>
+                <h4 className="font-bold text-xs text-[#221c17] leading-tight font-serif pt-1">{point.name}</h4>
                 {point.description && (
-                  <p className="text-[11px] text-slate-600 leading-normal">{point.description}</p>
+                  <p className="text-[11px] text-[#695e52] leading-normal">{point.description}</p>
                 )}
                 {point.cost !== undefined && (
-                  <p className="text-[11px] font-extrabold text-blue-600 pt-0.5">
+                  <p className="text-[11px] font-extrabold text-[#c25e38] pt-1 font-mono">
                     {typeof point.cost === 'number' ? (point.cost > 0 ? `₹${point.cost.toLocaleString('en-IN')}` : 'Free Entry') : point.cost}
                   </p>
                 )}
@@ -101,9 +101,9 @@ export const MapComponent: React.FC<Props> = ({
         {showRoute && polylinePositions.length > 1 && (
           <Polyline 
             positions={polylinePositions} 
-            color="#2563eb" 
+            color="#c25e38" 
             weight={3.5} 
-            dashArray="6, 8" 
+            dashArray="8, 8" 
           />
         )}
       </MapContainer>

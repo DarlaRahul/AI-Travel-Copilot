@@ -2,9 +2,11 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  avatar_url: string;
+  avatar_url?: string;
   travel_style: string;
   preferred_currency: string;
+  created_at?: string;
+  supabase_uid?: string;
 }
 
 export interface Activity {

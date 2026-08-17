@@ -49,10 +49,67 @@ def _get_json(url: str, timeout: int = 15, headers: Optional[dict[str, str]] = N
 # 1. GLOBAL LOCATION GEOCODING (OpenStreetMap Nominatim)
 # ==============================================================================
 
+def normalize_location(item: dict[str, Any], query_fallback: str = "") -> dict[str, Any]:
+    """
+    Normalizes provider location payload into a canonical English-first TravelLocation object.
+    Preserves raw internal metadata while ensuring primary user-facing fields (name, display_name)
+    are strictly in English.
+    """
+    address = item.get("address", {})
+    namedetails = item.get("namedetails", {})
+    
+    # Priority for English name
+    english_name = (
+        namedetails.get("name:en")
+        or namedetails.get("name:int")
+        or address.get("city:en")
+        or address.get("town:en")
+        or item.get("name")
+        or address.get("city")
+        or address.get("town")
+        or address.get("municipality")
+        or address.get("state_district")
+        or item.get("display_name", "").split(",")[0].strip()
+        or query_fallback.capitalize()
+    )
+    
+    country = address.get("country", "")
+    country_code = address.get("country_code", "").upper()
+    region = address.get("state") or address.get("region") or country
+    
+    city = (
+        namedetails.get("name:en")
+        or address.get("city:en")
+        or address.get("city")
+        or address.get("town")
+        or english_name
+    )
+    
+    # Clean English display name formatted as "City, Country" or "Name"
+    if english_name and country and english_name.lower() != country.lower():
+        clean_display_name = f"{english_name}, {country}"
+    else:
+        clean_display_name = english_name or item.get("display_name", query_fallback)
+        
+    return {
+        "name": english_name,
+        "city": city,
+        "country": country,
+        "country_code": country_code,
+        "region": region,
+        "latitude": float(item.get("lat", item.get("latitude", 0.0))),
+        "longitude": float(item.get("lon", item.get("longitude", 0.0))),
+        "display_name": clean_display_name,
+        "native_name": item.get("name") or item.get("display_name", "").split(",")[0].strip(),
+        "type": item.get("type", "place"),
+        "importance": item.get("importance", 0.0)
+    }
+
+
 @lru_cache(maxsize=256)
 def resolve_location(query: str) -> dict[str, Any]:
     """
-    Resolve any query worldwide into structured location metadata using OpenStreetMap Nominatim.
+    Resolve any query worldwide into structured English location metadata using OpenStreetMap Nominatim.
     Adheres strictly to Nominatim's ~1 req/sec policy and caches results.
     """
     global _last_nominatim_request
@@ -69,41 +126,18 @@ def resolve_location(query: str) -> dict[str, Any]:
         "q": clean_query,
         "format": "jsonv2",
         "addressdetails": 1,
-        "limit": 1
+        "namedetails": 1,
+        "limit": 1,
+        "accept-language": "en"
     }
     url = f"https://nominatim.openstreetmap.org/search?{urlencode(params)}"
-    results = _get_json(url, timeout=12)
+    results = _get_json(url, timeout=12, headers={"Accept-Language": "en,en-US;q=0.9"})
     _last_nominatim_request = time.monotonic()
 
     if not results:
         raise LookupError(f"Could not resolve destination '{query}'. Please check the spelling or try a city, landmark, or country.")
 
-    item = results[0]
-    address = item.get("address", {})
-    city = (
-        address.get("city")
-        or address.get("town")
-        or address.get("village")
-        or address.get("municipality")
-        or address.get("state_district")
-        or item["display_name"].split(",")[0].strip()
-    )
-    country = address.get("country", "")
-    country_code = address.get("country_code", "").upper()
-    region = address.get("state") or address.get("region") or country
-
-    return {
-        "name": item["display_name"].split(",")[0].strip(),
-        "city": city,
-        "country": country,
-        "country_code": country_code,
-        "region": region,
-        "latitude": float(item["lat"]),
-        "longitude": float(item["lon"]),
-        "display_name": item["display_name"],
-        "type": item.get("type", "place"),
-        "importance": item.get("importance", 0.0)
-    }
+    return normalize_location(results[0], query_fallback=clean_query)
 
 
 # ==============================================================================
@@ -189,7 +223,7 @@ def _nearby_places_cached(latitude: float, longitude: float, radius: int = 15000
     seen_names = set()
     for el in elements:
         tags = el.get("tags", {})
-        name = tags.get("name")
+        name = tags.get("name:en") or tags.get("int_name") or tags.get("name:int") or tags.get("name")
         point = el.get("center", el)
         if not name or "lat" not in point or "lon" not in point:
             continue

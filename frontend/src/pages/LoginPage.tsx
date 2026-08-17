@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Plane, Mail, Lock, Eye, EyeOff, Sparkles, ArrowRight, AlertCircle, CheckCircle2, Compass } from 'lucide-react';
+import { Plane, Mail, Lock, Eye, EyeOff, Sparkles, ArrowRight, AlertCircle, Play } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { APP_CONFIG } from '../config/appConfig';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login } = useAuth();
+  const { login, signInDemo } = useAuth();
 
   const redirectUrl = searchParams.get('redirect') || '/dashboard';
 
@@ -32,7 +33,7 @@ export const LoginPage: React.FC = () => {
       navigate(redirectUrl);
     } catch (err: any) {
       console.error("Login error:", err);
-      const detail = err.response?.data?.detail || "Invalid email or password. Please check your credentials.";
+      const detail = err.message || err.response?.data?.detail || "Invalid email or password. Please check your credentials.";
       setError(detail);
     } finally {
       setLoading(false);
@@ -40,38 +41,36 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleDemoLogin = async () => {
-    setEmail('chandu@example.com');
-    setPassword('demo123');
     setError(null);
     setLoading(true);
 
     try {
-      await login('chandu@example.com', 'demo123');
+      await signInDemo();
       navigate(redirectUrl);
     } catch (err: any) {
-      setError("Demo login failed. Please try again.");
+      setError("Demo authentication failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col justify-between text-slate-900">
+    <div className="min-h-screen bg-[var(--background)] flex flex-col justify-between text-[#221c17] selection:bg-[#c25e38] selection:text-white">
       {/* Header Bar */}
       <header className="max-w-7xl mx-auto w-full px-6 py-6 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#c25e38] to-[#c88842] flex items-center justify-center text-white shadow-md shadow-[#c25e38]/20 group-hover:scale-105 transition duration-200">
             <Plane className="w-5 h-5 -rotate-45" />
           </div>
           <div>
-            <h1 className="font-bold text-lg text-slate-900 leading-tight">AI Travel</h1>
-            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Copilot</p>
+            <h1 className="font-bold text-lg text-[#221c17] leading-tight font-serif">{APP_CONFIG.name}</h1>
+            <p className="text-[10px] font-bold text-[#c25e38] uppercase tracking-wider font-mono">{APP_CONFIG.tagline.split(' ')[0]} Travel</p>
           </div>
         </Link>
 
-        <div className="text-xs font-medium text-slate-500">
-          New to Copilot?{' '}
-          <Link to={`/register${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-blue-600 font-bold hover:underline">
+        <div className="text-xs font-medium text-[#695e52]">
+          New to {APP_CONFIG.shortName}?{' '}
+          <Link to={`/register${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-[#c25e38] font-bold hover:underline font-serif">
             Create an account
           </Link>
         </div>
@@ -79,15 +78,15 @@ export const LoginPage: React.FC = () => {
 
       {/* Center Auth Card */}
       <main className="flex-1 flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/50 p-8 space-y-6">
+        <div className="max-w-md w-full bg-[#fffefb] rounded-3xl border border-[#e3d6c1] shadow-xl shadow-[#221c17]/5 p-8 space-y-6">
           <div className="text-center space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              <span>Secure Authentication</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#faeee7] text-[#c25e38] text-xs font-bold font-mono">
+              <Sparkles className="w-3.5 h-3.5 text-[#c88842]" />
+              <span>Supabase Cloud Auth</span>
             </div>
-            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Sign In to Continue</h2>
-            <p className="text-xs text-slate-500 font-medium">
-              Please sign in or create an account to start planning your vacation with AI Copilot.
+            <h2 className="text-2xl font-extrabold text-[#221c17] tracking-tight font-serif">Sign In to Continue</h2>
+            <p className="text-xs text-[#695e52] font-medium">
+              Access your personalized travel journals, live flight updates, and hotel stays.
             </p>
           </div>
 
@@ -102,11 +101,11 @@ export const LoginPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             {/* Email Field */}
             <div>
-              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block font-bold text-[#695e52] uppercase tracking-wider mb-1.5 font-mono">
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#998c7e]">
                   <Mail className="w-4 h-4" />
                 </div>
                 <input
@@ -115,7 +114,7 @@ export const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 font-medium bg-slate-50/50 outline-none transition"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#e3d6c1] focus:border-[#c25e38] text-[#221c17] font-medium bg-[#f5eee2]/40 outline-none transition font-mono"
                 />
               </div>
             </div>
@@ -123,19 +122,12 @@ export const LoginPage: React.FC = () => {
             {/* Password Field */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="font-bold text-slate-700 uppercase tracking-wider">
+                <label className="font-bold text-[#695e52] uppercase tracking-wider font-mono">
                   Password
                 </label>
-                <button
-                  type="button"
-                  onClick={() => alert("Password reset link will be sent to your verified email.")}
-                  className="text-[11px] font-semibold text-blue-600 hover:underline"
-                >
-                  Forgot?
-                </button>
               </div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#998c7e]">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -144,12 +136,12 @@ export const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-900 font-medium bg-slate-50/50 outline-none transition"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[#e3d6c1] focus:border-[#c25e38] text-[#221c17] font-medium bg-[#f5eee2]/40 outline-none transition font-mono"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#998c7e] hover:text-[#221c17]"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -163,9 +155,9 @@ export const LoginPage: React.FC = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
+                  className="w-4 h-4 rounded text-[#c25e38] border-[#e3d6c1] focus:ring-[#c25e38]"
                 />
-                <span className="text-slate-600 font-medium">Remember my session</span>
+                <span className="text-[#695e52] font-medium">Keep me signed in</span>
               </label>
             </div>
 
@@ -173,7 +165,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-sm shadow-md shadow-blue-500/25 transition flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-full bg-[#c25e38] hover:bg-[#a84c29] disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-[#c25e38]/25 transition flex items-center justify-center gap-2 font-serif"
             >
               {loading ? (
                 <span>Signing In...</span>
@@ -188,26 +180,26 @@ export const LoginPage: React.FC = () => {
 
           {/* Quick Demo Access Divider */}
           <div className="relative flex py-1 items-center">
-            <div className="flex-grow border-t border-slate-200"></div>
-            <span className="flex-shrink mx-3 text-slate-400 text-[11px] font-semibold uppercase tracking-wider">Or</span>
-            <div className="flex-grow border-t border-slate-200"></div>
+            <div className="flex-grow border-t border-[#e3d6c1]"></div>
+            <span className="flex-shrink mx-3 text-[#998c7e] text-[10px] font-bold uppercase tracking-wider font-mono">Or</span>
+            <div className="flex-grow border-t border-[#e3d6c1]"></div>
           </div>
 
-          {/* Quick 1-Click Demo Login */}
+          {/* 1-Click Anonymous Demo Button */}
           <button
             type="button"
             onClick={handleDemoLogin}
             disabled={loading}
-            className="w-full py-2.5 rounded-xl border border-slate-200 hover:border-blue-500 bg-slate-50 hover:bg-blue-50/50 text-slate-700 hover:text-blue-700 font-bold text-xs shadow-2xs transition flex items-center justify-center gap-2"
+            className="w-full py-2.5 rounded-full border border-[#3b7a57]/30 bg-[#eef7f2] hover:bg-[#e2f2e9] text-[#3b7a57] font-bold text-xs shadow-2xs transition flex items-center justify-center gap-2 font-mono"
           >
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>1-Click Demo Login (Chandu Account)</span>
+            <Play className="w-3.5 h-3.5 fill-[#3b7a57] text-[#3b7a57]" />
+            <span>1-Click Instant Demo Experience (Traveler)</span>
           </button>
 
           {/* Footer Link */}
-          <div className="text-center pt-2 text-xs text-slate-500 font-medium">
+          <div className="text-center pt-2 text-xs text-[#695e52] font-medium">
             Don't have an account?{' '}
-            <Link to={`/register${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-blue-600 font-bold hover:underline">
+            <Link to={`/register${searchParams.toString() ? `?${searchParams.toString()}` : ''}`} className="text-[#c25e38] font-bold hover:underline font-serif">
               Sign up for free
             </Link>
           </div>
@@ -215,8 +207,8 @@ export const LoginPage: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="max-w-7xl mx-auto w-full px-6 py-4 text-center text-xs text-slate-400">
-        © 2026 AI Travel Copilot Inc. • Enterprise Grade JWT Authentication
+      <footer className="max-w-7xl mx-auto w-full px-6 py-4 text-center text-xs text-[#998c7e] font-mono">
+        © 2026 {APP_CONFIG.name} • Created by {APP_CONFIG.author}
       </footer>
     </div>
   );
