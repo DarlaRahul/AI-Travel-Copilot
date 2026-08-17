@@ -58,7 +58,7 @@ def register_user(req: UserRegister, db: Session = Depends(get_db)):
     # If the user already exists
     if existing:
         # If it's the demo account or re-registering existing user, update password and log in smoothly
-        if email_clean in ["chandu@example.com", "demo@travel.ai"]:
+        if email_clean in ["demo@travelcopilot.ai", "demo@travel.ai"]:
             existing.hashed_password = hash_password(req.password)
             existing.name = req.name.strip()
             existing.travel_style = req.travel_style or existing.travel_style
@@ -115,9 +115,9 @@ def login_user(req: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email.ilike(email_clean)).first()
     
     # Allow demo user initialization
-    if not user and (email_clean in ["chandu@example.com", "demo@travel.ai", "test@example.com"]):
+    if not user and (email_clean in ["demo@travelcopilot.ai", "demo@travel.ai", "test@example.com"]):
         user = User(
-            name="Chandu", 
+            name="Traveler", 
             email=email_clean, 
             hashed_password=hash_password("demo123"), 
             travel_style="Balanced"
@@ -164,11 +164,11 @@ def get_current_user_profile(
         user = db.query(User).filter(User.email.ilike(email.strip())).first()
         
     if not user:
-        user = db.query(User).filter(User.email == "chandu@example.com").first()
+        user = db.query(User).filter(User.email == "demo@travelcopilot.ai").first()
         if not user:
             user = User(
-                name="Chandu", 
-                email="chandu@example.com", 
+                name="Traveler", 
+                email="demo@travelcopilot.ai", 
                 hashed_password=hash_password("demo123"), 
                 travel_style="Balanced"
             )

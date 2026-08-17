@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
@@ -9,9 +10,20 @@ export const api = axios.create({
   },
 });
 
-// Automatically inject JWT token into all outgoing requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('travel_copilot_token');
+// Automatically obtain latest Supabase session token or stored token and inject into all outgoing requests
+api.interceptors.request.use(async (config) => {
+  let token = localStorage.getItem('travel_copilot_token');
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.access_token) {
+        token = data.session.access_token;
+      }
+    } catch {
+      // Fall back to stored token
+    }
+  }
+
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }

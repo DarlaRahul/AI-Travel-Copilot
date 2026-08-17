@@ -345,34 +345,8 @@ def get_weather(location: dict[str, Any]) -> dict[str, Any]:
 
 
 # ==============================================================================
-# 5. FLIGHTS PROVIDER ADAPTER (Amadeus Flight Offers & Ranking Engine)
+# 5. FLIGHTS & HOTEL PROVIDER ADAPTER
 # ==============================================================================
-
-def _amadeus_base_url() -> str:
-    env = os.getenv("AMADEUS_ENVIRONMENT", "test").strip().lower()
-    return "https://api.amadeus.com" if env == "production" else "https://test.api.amadeus.com"
-
-
-def _amadeus_token() -> str:
-    client_id = os.getenv("AMADEUS_CLIENT_ID", "").strip()
-    secret = os.getenv("AMADEUS_CLIENT_SECRET", "").strip()
-    if not client_id or not secret:
-        raise RuntimeError("Live flight data temporarily unavailable. Configure AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET in .env.")
-
-    body = urlencode({
-        "grant_type": "client_credentials",
-        "client_id": client_id,
-        "client_secret": secret
-    }).encode("utf-8")
-
-    req = Request(
-        f"{_amadeus_base_url()}/v1/security/oauth2/token",
-        data=body,
-        headers={"Content-Type": "application/x-www-form-urlencoded"}
-    )
-    with urlopen(req, timeout=15) as resp:
-        return json.loads(resp.read().decode("utf-8"))["access_token"]
-
 
 MAJOR_CITY_IATA = {
     "DELHI": "DEL",
@@ -418,7 +392,7 @@ MAJOR_CITY_IATA = {
 }
 
 
-def _resolve_airport_iata(city_or_airport: str, headers: Optional[dict[str, str]] = None) -> str:
+def _resolve_airport_iata(city_or_airport: str) -> str:
     """Resolve city name or code to closest IATA airport code."""
     clean = city_or_airport.strip().upper()
     if len(clean) == 3 and clean.isalpha():
@@ -428,16 +402,8 @@ def _resolve_airport_iata(city_or_airport: str, headers: Optional[dict[str, str]
     for name, code in MAJOR_CITY_IATA.items():
         if name in clean or clean in name:
             return code
-    if headers:
-        try:
-            params = {"subType": "AIRPORT,CITY", "keyword": city_or_airport.strip()}
-            url = f"{_amadeus_base_url()}/v1/reference-data/locations?{urlencode(params)}"
-            data = _get_json(url, headers=headers).get("data", [])
-            if data and data[0].get("iataCode"):
-                return data[0]["iataCode"]
-        except Exception:
-            pass
     return clean[:3] if len(clean) >= 3 else "DEL"
+
 
 
 def rank_flights(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -701,113 +667,21 @@ def search_flights(
     adults: int = 1,
     cabin: str = "ECONOMY"
 ) -> dict[str, Any]:
-    """Search live flights via Amadeus API or fallback to labeled demo data if configured."""
-    use_demo = os.getenv("USE_DEMO_DATA", "false").strip().lower() == "true"
-    client_id = os.getenv("AMADEUS_CLIENT_ID", "").strip()
-
-    if not client_id and use_demo:
-        demo_items = _get_demo_flights(origin, destination, departure_date, cabin)
-        return {
-            "status": "demo_data",
-            "message": "Showing demo flight data (USE_DEMO_DATA=true). Configure Amadeus credentials in .env for live availability.",
-            "results": rank_flights(demo_items)
-        }
-
-    try:
-        token = _amadeus_token()
-        headers = {"Authorization": f"Bearer {token}"}
-        origin_code = _resolve_airport_iata(origin, headers)
-        dest_code = _resolve_airport_iata(destination, headers)
-
-        params: dict[str, Any] = {
-            "originLocationCode": origin_code,
-            "destinationLocationCode": dest_code,
-            "departureDate": departure_date,
-            "adults": adults,
-            "travelClass": cabin.upper(),
-            "currencyCode": "INR",
-            "max": 20
-        }
-        if return_date:
-            params["returnDate"] = return_date
-
-        url = f"{_amadeus_base_url()}/v2/shopping/flight-offers?{urlencode(params)}"
-        offers = _get_json(url, headers=headers).get("data", [])
-
-        normalized = []
-        for offer in offers:
-            itin = offer["itineraries"][0]
-            segs = itin["segments"]
-            first_seg = segs[0]
-            last_seg = segs[-1]
-
-            # Calculate duration in hours
-            dur_str = itin.get("duration", "PT2H0M")
-            dur_clean = dur_str.replace("PT", "").replace("H", "H ").replace("M", "M ")
-            hours = 0
-            mins = 0
-            for part in dur_clean.split():
-                if part.endswith("H"):
-                    hours = int(part[:-1])
-                elif part.endswith("M"):
-                    mins = int(part[:-1])
-            duration_hrs = round(hours + (mins / 60.0), 2)
-
-            carrier = first_seg.get("carrierCode", "Airline")
-            flt_num = f"{carrier} {first_seg.get('number', '')}"
-            price_val = float(offer.get("price", {}).get("grandTotal", 0.0))
-            currency = offer.get("price", {}).get("currency", "INR")
-
-            stops_label = "Non-stop" if len(segs) == 1 else f"{len(segs) - 1} stop(s)"
-
-            normalized.append({
-                "id": str(offer["id"]),
-                "offer_id": str(offer["id"]),
-                "airline": carrier,
-                "flight_number": flt_num,
-                "origin": origin_code,
-                "destination": dest_code,
-                "source_city": origin.title(),
-                "destination_city": destination.title(),
-                "departure_time": first_seg["departure"]["at"],
-                "arrival_time": last_seg["arrival"]["at"],
-                "duration_hrs": duration_hrs,
-                "stops": stops_label,
-                "cabin_class": cabin.title(),
-                "baggage": "Standard baggage policy as per fare family",
-                "price_inr": price_val,
-                "currency": currency,
-                "provider": "Amadeus GDS",
-                "booking_capability": "provider_handoff_required",
-                "booking_url": f"https://www.google.com/travel/flights?q=flights+from+{quote(origin)}+to+{quote(destination)}",
-                "retrieved_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "is_live_api": True
-            })
-
-        env = os.getenv("AMADEUS_ENVIRONMENT", "test").strip().lower()
-        status_label = "test_provider_data" if env == "test" else "live"
-        return {
-            "status": status_label,
-            "message": "Current provider flight offers retrieved." if normalized else "No flight offers found for this date/route.",
-            "results": rank_flights(normalized)
-        }
-
-    except RuntimeError as err:
-        return {
-            "status": "unavailable",
-            "message": str(err),
-            "results": []
-        }
-    except Exception as exc:
-        return {
-            "status": "unavailable",
-            "message": f"Live flight search unavailable: {str(exc)}",
-            "results": []
-        }
+    """Unified flight search delegating to the open-source trvl provider adapter."""
+    from .travel_provider import search_flights as provider_search_flights
+    return provider_search_flights(
+        origin=origin,
+        destination=destination,
+        departure_date=departure_date,
+        return_date=return_date,
+        adults=adults,
+        cabin=cabin,
+        currency="INR"
+    )
 
 
 # ==============================================================================
-# 6. HOTELS PROVIDER ADAPTER (Amadeus Hotel List & Hotel Offers V3)
+# 6. HOTELS PROVIDER ADAPTER
 # ==============================================================================
 
 def _get_demo_hotels(location: dict[str, Any], check_in: str, check_out: str, rooms: int) -> list[dict[str, Any]]:
@@ -920,139 +794,16 @@ def search_hotels(
     adults: int = 1,
     rooms: int = 1
 ) -> dict[str, Any]:
-    """
-    Search real hotel inventory via Amadeus Hotel List by Geocode + Hotel Offers Search V3.
-    Returns normalized hotel list with genuine room details and pricing.
-    """
-    use_demo = os.getenv("USE_DEMO_DATA", "false").strip().lower() == "true"
-    client_id = os.getenv("AMADEUS_CLIENT_ID", "").strip()
-
-    if not client_id and use_demo:
-        demo_hotels = _get_demo_hotels(location, check_in, check_out, rooms)
-        return {
-            "status": "demo_data",
-            "message": "Showing demo hotel inventory (USE_DEMO_DATA=true). Configure Amadeus credentials in .env for live availability.",
-            "results": demo_hotels
-        }
-
-    try:
-        token = _amadeus_token()
-        headers = {"Authorization": f"Bearer {token}"}
-
-        # Step 1: Find hotels by geocode
-        geo_params = {
-            "latitude": location["latitude"],
-            "longitude": location["longitude"],
-            "radius": 20,
-            "radiusUnit": "KM",
-            "hotelSource": "ALL"
-        }
-        geo_url = f"{_amadeus_base_url()}/v1/reference-data/locations/hotels/by-geocode?{urlencode(geo_params)}"
-        nearby = _get_json(geo_url, headers=headers).get("data", [])[:20]
-        hotel_ids = [h["hotelId"] for h in nearby if h.get("hotelId")]
-
-        if not hotel_ids:
-            return {
-                "status": "live",
-                "message": f"No partner hotels found within 20km of {location['name']}.",
-                "results": []
-            }
-
-        # Step 2: Query multi-hotel offers search V3
-        offer_params = {
-            "hotelIds": ",".join(hotel_ids[:15]),
-            "checkInDate": check_in,
-            "checkOutDate": check_out,
-            "adults": adults,
-            "roomQuantity": rooms,
-            "currency": "INR"
-        }
-        offers_url = f"{_amadeus_base_url()}/v3/shopping/hotel-offers?{urlencode(offer_params)}"
-        offers_data = _get_json(offers_url, headers=headers).get("data", [])
-
-        d_in = date.fromisoformat(check_in)
-        d_out = date.fromisoformat(check_out)
-        nights = max((d_out - d_in).days, 1)
-
-        results = []
-        for item in offers_data:
-            hotel_meta = item.get("hotel", {})
-            h_name = hotel_meta.get("name", "Hotel")
-            h_rating = hotel_meta.get("rating")
-            h_address = ", ".join(hotel_meta.get("address", {}).get("lines", [])) or location.get("city", "")
-
-            for offer in item.get("offers", []):
-                price_obj = offer.get("price", {})
-                total_val = float(price_obj.get("total", 0.0))
-                per_night = round(total_val / nights, 2) if total_val > 0 else 0.0
-                curr = price_obj.get("currency", "INR")
-
-                room_obj = offer.get("room", {})
-                r_type = room_obj.get("typeEstimated", {}).get("category", "Standard Room").replace("_", " ").title()
-                r_desc = room_obj.get("description", {}).get("text", "Comfortable guest room with modern amenities.")
-
-                policies = offer.get("policies", {})
-                cancellation = policies.get("cancellations", [{}])[0].get("description", {}).get("text", "Cancellation policy as per rate rules.")
-
-                # Tier determination
-                if per_night > 10000 or (h_rating and int(str(h_rating)[0]) >= 5):
-                    tier = "Luxury"
-                elif per_night > 4000:
-                    tier = "Mid-Range"
-                else:
-                    tier = "Budget / Hostel"
-
-                results.append({
-                    "hotel_id": str(hotel_meta.get("hotelId", "")),
-                    "offer_id": str(offer.get("id", "")),
-                    "name": h_name,
-                    "city": location["city"],
-                    "country": location["country"],
-                    "address": h_address,
-                    "rating": float(h_rating) if h_rating else 4.5,
-                    "star_rating": f"{h_rating} Stars" if h_rating else "4 Stars",
-                    "review_score": float(h_rating) if h_rating else 4.5,
-                    "tier": tier,
-                    "ai_recommendation_score": 95.0,
-                    "image_url": destination_image(h_name)["image_url"] if h_name else GENERIC_IMAGE,
-                    "room_type": r_type,
-                    "room_description": r_desc,
-                    "amenities": ", ".join(hotel_meta.get("amenities", ["Free Wi-Fi", "Air Conditioning", "Ensuite Bath", "24/7 Front Desk"])),
-                    "check_in": check_in,
-                    "check_out": check_out,
-                    "rooms": rooms,
-                    "price_per_night": per_night,
-                    "price_per_night_inr": per_night,
-                    "total_stay_price": f"{total_val:.2f}",
-                    "currency": curr,
-                    "taxes": "Included in grand total",
-                    "cancellation_policy": cancellation,
-                    "payment_policy": policies.get("paymentType", "Credit / Debit Card"),
-                    "provider": "Amadeus Hospitality GDS",
-                    "booking_capability": "provider_handoff_required",
-                    "booking_url": f"https://www.google.com/travel/hotels/{quote(location['name'])}",
-                    "retrieved_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-                })
-
-        env = os.getenv("AMADEUS_ENVIRONMENT", "test").strip().lower()
-        return {
-            "status": "test_provider_data" if env == "test" else "live",
-            "message": f"Found {len(results)} available room offers." if results else "No current hotel offers available for selected dates.",
-            "results": results
-        }
-
-    except RuntimeError as err:
-        return {
-            "status": "unavailable",
-            "message": str(err),
-            "results": []
-        }
-    except Exception as exc:
-        return {
-            "status": "unavailable",
-            "message": f"Live hotel inventory unavailable: {str(exc)}",
-            "results": []
-        }
+    """Unified hotel search delegating to the open-source trvl provider adapter."""
+    from .travel_provider import search_hotels as provider_search_hotels
+    return provider_search_hotels(
+        location=location,
+        check_in=check_in,
+        check_out=check_out,
+        adults=adults,
+        rooms=rooms,
+        currency="INR"
+    )
 
 
 # ==============================================================================

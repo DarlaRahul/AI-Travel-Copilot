@@ -39,18 +39,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
+        if (!isSupabaseConfigured || !supabase) {
+          setIsLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Supabase session load error:', error);
+        }
+
         if (data.session?.user) {
           const authUser = data.session.user;
           const isAnon = Boolean(authUser.is_anonymous || !authUser.email);
           setIsAnonymous(isAnon);
           setToken(data.session.access_token);
           
-          // Map to local application User model
+          const displayName = authUser.user_metadata?.display_name || 
+            (isAnon ? 'Guest Traveler' : (authUser.email?.split('@')[0] || 'Traveler'));
+
           const mappedUser: User = {
-            id: typeof authUser.id === 'string' ? 1 : authUser.id,
-            name: authUser.user_metadata?.display_name || (isAnon ? 'Traveler' : (authUser.email?.split('@')[0] || 'Traveler')),
-            email: authUser.email || 'traveler@travelcopilot.ai',
+            id: authUser.id,
+            name: displayName,
+            email: authUser.email || (isAnon ? 'anonymous@travelcopilot.ai' : ''),
             travel_style: authUser.user_metadata?.travel_style || APP_CONFIG.defaultTravelStyle,
             preferred_currency: authUser.user_metadata?.preferred_currency || APP_CONFIG.defaultCurrency,
             created_at: authUser.created_at || new Date().toISOString()
@@ -60,9 +71,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('travel_copilot_user', JSON.stringify(mappedUser));
           localStorage.setItem('travel_copilot_token', data.session.access_token);
           localStorage.setItem('travel_copilot_is_anon', String(isAnon));
+        } else {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('travel_copilot_user');
+          localStorage.removeItem('travel_copilot_token');
+          localStorage.removeItem('travel_copilot_is_anon');
         }
       } catch (err) {
-        console.error('Supabase session load error:', err);
+        console.error('Supabase auth init error:', err);
       } finally {
         setIsLoading(false);
       }
@@ -70,38 +87,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initAuth();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        const authUser = session.user;
-        const isAnon = Boolean(authUser.is_anonymous || !authUser.email);
-        setIsAnonymous(isAnon);
-        setToken(session.access_token);
+    if (isSupabaseConfigured && supabase) {
+      const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (session?.user) {
+          const authUser = session.user;
+          const isAnon = Boolean(authUser.is_anonymous || !authUser.email);
+          setIsAnonymous(isAnon);
+          setToken(session.access_token);
 
-        const mappedUser: User = {
-          id: 1,
-          name: authUser.user_metadata?.display_name || (isAnon ? 'Traveler' : (authUser.email?.split('@')[0] || 'Traveler')),
-          email: authUser.email || 'traveler@travelcopilot.ai',
-          travel_style: authUser.user_metadata?.travel_style || APP_CONFIG.defaultTravelStyle,
-          preferred_currency: authUser.user_metadata?.preferred_currency || APP_CONFIG.defaultCurrency,
-          created_at: authUser.created_at || new Date().toISOString()
-        };
+          const displayName = authUser.user_metadata?.display_name || 
+            (isAnon ? 'Guest Traveler' : (authUser.email?.split('@')[0] || 'Traveler'));
 
-        setUser(mappedUser);
-        localStorage.setItem('travel_copilot_user', JSON.stringify(mappedUser));
-        localStorage.setItem('travel_copilot_token', session.access_token);
-        localStorage.setItem('travel_copilot_is_anon', String(isAnon));
-      }
-    });
+          const mappedUser: User = {
+            id: authUser.id,
+            name: displayName,
+            email: authUser.email || (isAnon ? 'anonymous@travelcopilot.ai' : ''),
+            travel_style: authUser.user_metadata?.travel_style || APP_CONFIG.defaultTravelStyle,
+            preferred_currency: authUser.user_metadata?.preferred_currency || APP_CONFIG.defaultCurrency,
+            created_at: authUser.created_at || new Date().toISOString()
+          };
 
-    return () => {
-      authListener?.subscription?.unsubscribe?.();
-    };
+          setUser(mappedUser);
+          localStorage.setItem('travel_copilot_user', JSON.stringify(mappedUser));
+          localStorage.setItem('travel_copilot_token', session.access_token);
+          localStorage.setItem('travel_copilot_is_anon', String(isAnon));
+        } else {
+          setUser(null);
+          setToken(null);
+          setIsAnonymous(false);
+          localStorage.removeItem('travel_copilot_user');
+          localStorage.removeItem('travel_copilot_token');
+          localStorage.removeItem('travel_copilot_is_anon');
+        }
+      });
+
+      return () => {
+        authListener?.subscription?.unsubscribe?.();
+      };
+    }
   }, []);
 
-  // Standard Supabase Email Login
+  // Standard Email Login
   const login = async (email: string, password = 'password123') => {
     setIsLoading(true);
     try {
+      if (!isSupabaseConfigured || !supabase) {
+        throw new Error("Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.");
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -109,20 +142,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
-      if (data.user) {
+      if (data.user && data.session) {
         const mappedUser: User = {
-          id: 1,
+          id: data.user.id,
           name: data.user.user_metadata?.display_name || email.split('@')[0],
           email: data.user.email || email,
           travel_style: data.user.user_metadata?.travel_style || 'Balanced',
-          preferred_currency: 'INR',
+          preferred_currency: data.user.user_metadata?.preferred_currency || 'INR',
           created_at: data.user.created_at || new Date().toISOString()
         };
         setUser(mappedUser);
-        setToken(data.session?.access_token || 'token');
+        setToken(data.session.access_token);
         setIsAnonymous(false);
         localStorage.setItem('travel_copilot_user', JSON.stringify(mappedUser));
-        localStorage.setItem('travel_copilot_token', data.session?.access_token || 'token');
+        localStorage.setItem('travel_copilot_token', data.session.access_token);
         localStorage.setItem('travel_copilot_is_anon', 'false');
       }
     } finally {
@@ -130,10 +163,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Standard Supabase Sign Up
+  // Standard Sign Up
   const register = async (name: string, email: string, password = 'password123', travel_style = "Balanced") => {
     setIsLoading(true);
     try {
+      if (!isSupabaseConfigured || !supabase) {
+        throw new Error("Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.");
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -150,7 +187,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (data.user) {
         const mappedUser: User = {
-          id: 1,
+          id: data.user.id,
           name: name,
           email: email,
           travel_style: travel_style,
@@ -158,10 +195,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           created_at: data.user.created_at || new Date().toISOString()
         };
         setUser(mappedUser);
-        setToken(data.session?.access_token || 'token');
+        const accessToken = data.session?.access_token || 'pending_confirmation';
+        setToken(accessToken);
         setIsAnonymous(false);
         localStorage.setItem('travel_copilot_user', JSON.stringify(mappedUser));
-        localStorage.setItem('travel_copilot_token', data.session?.access_token || 'token');
+        localStorage.setItem('travel_copilot_token', accessToken);
         localStorage.setItem('travel_copilot_is_anon', 'false');
       }
     } finally {
@@ -169,37 +207,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // 1-Click Anonymous Demo Authentication (Enters Real App Instantly)
+  // 1-Click Anonymous Demo Authentication with Real Supabase Anonymous Auth
   const signInDemo = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) {
-        console.warn('Anonymous auth note (fallback applied):', error.message);
+      if (!isSupabaseConfigured || !supabase) {
+        throw new Error("Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.");
       }
 
-      const anonUser = data?.user || {
-        id: `anon_${Date.now()}`,
-        email: null,
-        is_anonymous: true,
-        user_metadata: { display_name: 'Traveler', travel_style: 'Balanced', preferred_currency: 'INR' }
-      };
+      const { data, error } = await supabase.auth.signInAnonymously({
+        options: {
+          data: {
+            display_name: 'Guest Traveler',
+            travel_style: 'Balanced',
+            preferred_currency: 'INR'
+          }
+        }
+      });
 
-      const mappedUser: User = {
-        id: 1,
-        name: 'Traveler',
-        email: 'traveler@travelcopilot.ai',
-        travel_style: 'Balanced',
-        preferred_currency: 'INR',
-        created_at: new Date().toISOString()
-      };
+      if (error) {
+        throw error;
+      }
 
-      setUser(mappedUser);
-      setToken(data?.session?.access_token || 'anon_session_token');
-      setIsAnonymous(true);
-      localStorage.setItem('travel_copilot_user', JSON.stringify(mappedUser));
-      localStorage.setItem('travel_copilot_token', data?.session?.access_token || 'anon_session_token');
-      localStorage.setItem('travel_copilot_is_anon', 'true');
+      if (data?.user && data?.session) {
+        const mappedUser: User = {
+          id: data.user.id,
+          name: 'Guest Traveler',
+          email: 'anonymous@travelcopilot.ai',
+          travel_style: 'Balanced',
+          preferred_currency: 'INR',
+          created_at: data.user.created_at || new Date().toISOString()
+        };
+
+        setUser(mappedUser);
+        setToken(data.session.access_token);
+        setIsAnonymous(true);
+        localStorage.setItem('travel_copilot_user', JSON.stringify(mappedUser));
+        localStorage.setItem('travel_copilot_token', data.session.access_token);
+        localStorage.setItem('travel_copilot_is_anon', 'true');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -208,7 +254,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Logout
   const logout = async () => {
     try {
-      await supabase.auth.signOut();
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
     } catch {
       // Ignored
     }
@@ -227,9 +275,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(merged);
       localStorage.setItem('travel_copilot_user', JSON.stringify(merged));
 
-      // Sync with Supabase profile table if configured
+      // Sync with Supabase profile table & auth metadata
       try {
-        if (isSupabaseConfigured) {
+        if (isSupabaseConfigured && supabase) {
+          await supabase.auth.updateUser({
+            data: {
+              display_name: merged.name,
+              travel_style: merged.travel_style,
+              preferred_currency: merged.preferred_currency
+            }
+          });
+
           const { data: sess } = await supabase.auth.getSession();
           if (sess.session?.user?.id) {
             await supabase.from('profiles').upsert({

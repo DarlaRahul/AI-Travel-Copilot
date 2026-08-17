@@ -264,7 +264,7 @@ export const DashboardPage: React.FC = () => {
                 <span className="text-[10px] font-bold uppercase tracking-wider bg-[#faeee7] text-[#c25e38] px-2.5 py-0.5 rounded-full font-mono border border-[#c25e38]/20">
                   Air Travel Options
                 </span>
-                <span className="text-xs text-[#998c7e] font-serif italic">Amadeus & Reference Fares</span>
+                <span className="text-xs text-[#998c7e] font-serif italic">Live Provider & Reference Fares</span>
               </div>
               <h2 className="text-2xl font-extrabold text-[#221c17] tracking-tight font-serif mt-1">
                 Best Ways to Get to {activeDestination}

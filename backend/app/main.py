@@ -52,6 +52,8 @@ app.include_router(disruptions_router, prefix=settings.API_V1_STR)
 app.include_router(chat_router, prefix=settings.API_V1_STR)
 app.include_router(weather_router, prefix=settings.API_V1_STR)
 
+from .services.travel_provider import check_travel_provider_health
+
 @app.get("/")
 def health_check():
     return {
@@ -60,3 +62,10 @@ def health_check():
         "version": settings.VERSION,
         "docs_url": "/docs"
     }
+
+@app.get("/api/health/travel")
+@app.get("/health/travel")
+def travel_health_check():
+    """Returns the operational status and data mode of the travel data provider."""
+    return check_travel_provider_health()
+

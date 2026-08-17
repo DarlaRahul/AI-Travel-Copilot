@@ -28,13 +28,13 @@ def test_unknown_location_raises_lookup_error(monkeypatch):
         travel_services.resolve_location("not-a-real-place-12345")
 
 
-def test_unconfigured_flights_without_demo_returns_unavailable(monkeypatch):
-    monkeypatch.delenv("AMADEUS_CLIENT_ID", raising=False)
-    monkeypatch.delenv("AMADEUS_CLIENT_SECRET", raising=False)
-    monkeypatch.setenv("USE_DEMO_DATA", "false")
+def test_flights_with_demo_mode(monkeypatch):
+    monkeypatch.setenv("TRAVEL_DATA_MODE", "demo")
+    monkeypatch.setenv("USE_DEMO_DATA", "true")
     result = travel_services.search_flights("Hyderabad", "Dubai", "2026-10-01")
-    assert result["status"] == "unavailable"
-    assert result["results"] == []
+    assert result["status"] == "demo_data"
+    assert len(result["results"]) > 0
+
 
 
 def test_flight_ranking_is_deterministic():

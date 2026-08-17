@@ -1,18 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from datetime import date
 
 from ..database import get_db
-from ..models.entities import Trip, ItineraryDay, Activity, User
+from ..models.entities import Trip, ItineraryDay, Activity
 from ..schemas.all_schemas import TripCreateRequest, TripResponse
 from ..agents.planner_agent import planner_agent
-from ..services.travel_services import resolve_location, search_places, destination_image
+from ..services.travel_services import resolve_location
+from .auth_deps import get_current_user_optional, AuthenticatedUser
 
 router = APIRouter(prefix="/trips", tags=["Trips & Itineraries"])
 
 @router.post("/plan", response_model=TripResponse)
-def generate_and_save_trip(req: TripCreateRequest, db: Session = Depends(get_db)):
+def generate_and_save_trip(
+    req: TripCreateRequest, 
+    db: Session = Depends(get_db),
+    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional)
+):
     # 1. Resolve location dynamically
     try:
         location = resolve_location(req.destination)
@@ -35,11 +40,10 @@ def generate_and_save_trip(req: TripCreateRequest, db: Session = Depends(get_db)
     )
     itinerary_data["country"] = location.get("country", "Global")
 
-    # 3. Get or create default user
-    user = db.query(User).first()
-    user_id = user.id if user else None
+    # 3. Derive user ID strictly from verified token
+    user_id = current_user.id if current_user else None
 
-    # 4. Save Trip in Database
+    # 4. Save Trip in Database with explicit user ownership
     new_trip = Trip(
         user_id=user_id,
         title=itinerary_data["title"],
@@ -98,22 +102,40 @@ def generate_and_save_trip(req: TripCreateRequest, db: Session = Depends(get_db)
     return new_trip
 
 @router.get("", response_model=List[TripResponse])
-def get_all_trips(db: Session = Depends(get_db)):
-    trips = db.query(Trip).order_by(Trip.created_at.desc()).all()
-    return trips
+def get_all_trips(
+    db: Session = Depends(get_db),
+    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional)
+):
+    if not current_user:
+        return []
+    return db.query(Trip).filter(Trip.user_id == current_user.id).order_by(Trip.created_at.desc()).all()
 
 @router.get("/{trip_id}", response_model=TripResponse)
-def get_trip_by_id(trip_id: int, db: Session = Depends(get_db)):
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+def get_trip_by_id(
+    trip_id: int, 
+    db: Session = Depends(get_db),
+    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional)
+):
+    if not current_user:
+        raise HTTPException(status_code=404, detail="Trip not found")
+    trip = db.query(Trip).filter(Trip.id == trip_id, Trip.user_id == current_user.id).first()
     if not trip:
         raise HTTPException(status_code=404, detail="Trip not found")
     return trip
 
 @router.delete("/{trip_id}")
-def delete_trip(trip_id: int, db: Session = Depends(get_db)):
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+def delete_trip(
+    trip_id: int, 
+    db: Session = Depends(get_db),
+    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional)
+):
+    if not current_user:
+        raise HTTPException(status_code=404, detail="Trip not found")
+    trip = db.query(Trip).filter(Trip.id == trip_id, Trip.user_id == current_user.id).first()
     if not trip:
         raise HTTPException(status_code=404, detail="Trip not found")
     db.delete(trip)
     db.commit()
     return {"message": "Trip deleted successfully"}
+
+

@@ -6,13 +6,14 @@ import {
 } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
+import { isSupabaseConfigured } from '../lib/supabase';
 import { FloatingDock } from '../components/ui/floating-dock';
 
 export const ProfilePage: React.FC = () => {
   const { user, updateUser, isAnonymous } = useAuth();
 
   const [name, setName] = useState(user?.name || 'Traveler');
-  const [email, setEmail] = useState(user?.email || 'traveler@travelcopilot.ai');
+  const [email, setEmail] = useState(user?.email || '');
   const [travelStyle, setTravelStyle] = useState(user?.travel_style || 'Balanced');
   const [currency, setCurrency] = useState(user?.preferred_currency || 'INR');
   const [saved, setSaved] = useState(false);
@@ -58,9 +59,9 @@ export const ProfilePage: React.FC = () => {
               <p className="text-xs text-[#695e52] font-medium font-mono">
                 {isAnonymous ? 'Anonymous Demo Session' : email} • Active Voyager
               </p>
-              <div className="flex items-center gap-1.5 text-xs text-[#3b7a57] font-bold mt-1 font-mono">
+              <div className={`flex items-center gap-1.5 text-xs font-bold mt-1 font-mono ${isSupabaseConfigured ? 'text-[#3b7a57]' : 'text-[#8b7355]'}`}>
                 <ShieldCheck className="w-4 h-4" />
-                <span>Supabase Secure Cloud Session</span>
+                <span>{isSupabaseConfigured ? 'Supabase Cloud Session' : 'Local Workspace Session'}</span>
               </div>
             </div>
           </div>

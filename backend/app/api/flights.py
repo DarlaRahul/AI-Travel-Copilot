@@ -22,7 +22,7 @@ def search_flights(
     days_left: Optional[int] = None
 ):
     """
-    Search live/test flight inventory via Amadeus provider adapter or labeled demo mode.
+    Search flight inventory via open-source trvl provider adapter or labeled demo mode.
     Returns normalized flights with recommendation ranking badges.
     """
     src = source_city or source or "Delhi"

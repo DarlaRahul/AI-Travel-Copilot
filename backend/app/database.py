@@ -3,9 +3,19 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from .config import settings
 
-# Create engine
-connect_args = {"check_same_thread": False} if settings.DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(settings.DATABASE_URL, connect_args=connect_args, echo=False)
+# Database URL resolution
+db_url = settings.DATABASE_URL
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# Connect args & engine configuration
+if db_url.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+    engine = create_engine(db_url, connect_args=connect_args, echo=False)
+else:
+    # PostgreSQL (Supabase) configuration
+    connect_args = {}
+    engine = create_engine(db_url, connect_args=connect_args, pool_pre_ping=True, pool_recycle=300, echo=False)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -17,3 +27,4 @@ def get_db():
         yield db
     finally:
         db.close()
+

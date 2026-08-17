@@ -206,8 +206,10 @@ class DisruptionItem(BaseModel):
 class ChatMessage(BaseModel):
     role: str  # user, assistant, system
     content: str
-    embedded_type: Optional[str] = None  # itinerary, hotel_card, flight_card, disruption_alert, budget_summary
+    embedded_type: Optional[str] = None  # itinerary, hotel_card, flight_card, disruption_alert, budget_summary, feasibility_card
     embedded_data: Optional[Dict[str, Any]] = None
+    action_buttons: Optional[List[Dict[str, Any]]] = None
+    feasibility_status: Optional[str] = None  # Comfortable, Possible, Tight, Unrealistic
 
 class ChatRequest(BaseModel):
     message: str

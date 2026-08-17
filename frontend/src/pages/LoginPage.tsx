@@ -48,7 +48,7 @@ export const LoginPage: React.FC = () => {
       await signInDemo();
       navigate(redirectUrl);
     } catch (err: any) {
-      setError("Demo authentication failed. Please try again.");
+      setError(err.message || "Demo authentication failed. Please try again.");
     } finally {
       setLoading(false);
     }

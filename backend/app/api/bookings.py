@@ -1,13 +1,14 @@
 import random
 import datetime
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
 
 from ..database import get_db
-from ..models.entities import Booking, User, Trip, Expense
+from ..models.entities import Booking, Expense
 from ..config import settings
+from .auth_deps import get_current_user_optional, AuthenticatedUser
 
 router = APIRouter(prefix="/bookings", tags=["Bookings Management"])
 
@@ -36,10 +37,17 @@ class BookingResponse(BaseModel):
         from_attributes = True
 
 @router.get("", response_model=List[BookingResponse])
-def get_all_bookings(db: Session = Depends(get_db)):
-    bookings = db.query(Booking).order_by(Booking.created_at.desc()).all()
-    # Only initialize demo bookings if explicitly configured in demo mode
-    if not bookings and settings.USE_DEMO_DATA:
+def get_all_bookings(
+    db: Session = Depends(get_db),
+    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional)
+):
+    query = db.query(Booking)
+    if current_user:
+        query = query.filter(Booking.user_id == current_user.id)
+    bookings = query.order_by(Booking.created_at.desc()).all()
+    
+    # Only initialize demo bookings if explicitly configured in demo mode and unauthenticated
+    if not bookings and settings.USE_DEMO_DATA and not current_user:
         demo_bookings = [
             Booking(
                 booking_type="Hotel",
@@ -69,9 +77,12 @@ def get_all_bookings(db: Session = Depends(get_db)):
     return bookings
 
 @router.post("", response_model=BookingResponse)
-def create_booking(req: BookingCreateRequest, db: Session = Depends(get_db)):
-    user = db.query(User).first()
-    user_id = user.id if user else None
+def create_booking(
+    req: BookingCreateRequest, 
+    db: Session = Depends(get_db),
+    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional)
+):
+    user_id = current_user.id if current_user else None
 
     # Use provider reference or generate a tracked handoff reference
     prefix = "REF-HTL" if req.booking_type.lower() == "hotel" else "REF-FLT"
@@ -113,8 +124,15 @@ def create_booking(req: BookingCreateRequest, db: Session = Depends(get_db)):
     return new_booking
 
 @router.delete("/{booking_id}")
-def cancel_booking(booking_id: int, db: Session = Depends(get_db)):
-    booking = db.query(Booking).filter(Booking.id == booking_id).first()
+def cancel_booking(
+    booking_id: int, 
+    db: Session = Depends(get_db),
+    current_user: Optional[AuthenticatedUser] = Depends(get_current_user_optional)
+):
+    query = db.query(Booking).filter(Booking.id == booking_id)
+    if current_user:
+        query = query.filter(Booking.user_id == current_user.id)
+    booking = query.first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking record not found")
     db.delete(booking)
