@@ -33,7 +33,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAnonymous, setIsAnonymous] = useState<boolean>(() => {
     return localStorage.getItem('travel_copilot_is_anon') === 'true';
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    return !(localStorage.getItem('travel_copilot_user') && localStorage.getItem('travel_copilot_token'));
+  });
 
   // Initialize and listen for Supabase auth state changes
   useEffect(() => {
@@ -72,11 +74,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('travel_copilot_token', data.session.access_token);
           localStorage.setItem('travel_copilot_is_anon', String(isAnon));
         } else {
-          setUser(null);
-          setToken(null);
-          localStorage.removeItem('travel_copilot_user');
-          localStorage.removeItem('travel_copilot_token');
-          localStorage.removeItem('travel_copilot_is_anon');
+          const savedUserStr = localStorage.getItem('travel_copilot_user');
+          const savedToken = localStorage.getItem('travel_copilot_token');
+          const savedIsAnon = localStorage.getItem('travel_copilot_is_anon') === 'true';
+
+          if (savedUserStr && savedToken) {
+            try {
+              setUser(JSON.parse(savedUserStr));
+              setToken(savedToken);
+              setIsAnonymous(savedIsAnon);
+            } catch {
+              setUser(null);
+              setToken(null);
+            }
+          } else {
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem('travel_copilot_user');
+            localStorage.removeItem('travel_copilot_token');
+            localStorage.removeItem('travel_copilot_is_anon');
+          }
         }
       } catch (err) {
         console.error('Supabase auth init error:', err);
@@ -112,12 +129,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('travel_copilot_token', session.access_token);
           localStorage.setItem('travel_copilot_is_anon', String(isAnon));
         } else {
-          setUser(null);
-          setToken(null);
-          setIsAnonymous(false);
-          localStorage.removeItem('travel_copilot_user');
-          localStorage.removeItem('travel_copilot_token');
-          localStorage.removeItem('travel_copilot_is_anon');
+          const savedUserStr = localStorage.getItem('travel_copilot_user');
+          const savedToken = localStorage.getItem('travel_copilot_token');
+          const savedIsAnon = localStorage.getItem('travel_copilot_is_anon') === 'true';
+
+          if (savedUserStr && savedToken) {
+            try {
+              setUser(JSON.parse(savedUserStr));
+              setToken(savedToken);
+              setIsAnonymous(savedIsAnon);
+            } catch {
+              setUser(null);
+              setToken(null);
+            }
+          } else {
+            setUser(null);
+            setToken(null);
+            setIsAnonymous(false);
+            localStorage.removeItem('travel_copilot_user');
+            localStorage.removeItem('travel_copilot_token');
+            localStorage.removeItem('travel_copilot_is_anon');
+          }
         }
       });
 
@@ -207,45 +239,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // 1-Click Anonymous Demo Authentication with Real Supabase Anonymous Auth
+  // 1-Click Anonymous Demo Authentication
   const signInDemo = async () => {
     setIsLoading(true);
     try {
-      if (!isSupabaseConfigured || !supabase) {
-        throw new Error("Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.");
-      }
+      let userId = '';
+      let accessToken = '';
 
-      const { data, error } = await supabase.auth.signInAnonymously({
-        options: {
-          data: {
-            display_name: 'Guest Traveler',
-            travel_style: 'Balanced',
-            preferred_currency: 'INR'
+      if (isSupabaseConfigured && supabase) {
+        try {
+          const { data, error } = await supabase.auth.signInAnonymously({
+            options: {
+              data: {
+                display_name: 'Guest Traveler',
+                travel_style: 'Balanced',
+                preferred_currency: 'INR'
+              }
+            }
+          });
+          if (!error && data?.user && data?.session) {
+            userId = data.user.id;
+            accessToken = data.session.access_token;
           }
+        } catch {
+          // Fallback to client-side anonymous UUID below
         }
-      });
-
-      if (error) {
-        throw error;
       }
 
-      if (data?.user && data?.session) {
-        const mappedUser: User = {
-          id: data.user.id,
-          name: 'Guest Traveler',
-          email: '',
-          travel_style: 'Balanced',
-          preferred_currency: 'INR',
-          created_at: data.user.created_at || new Date().toISOString()
-        };
-
-        setUser(mappedUser);
-        setToken(data.session.access_token);
-        setIsAnonymous(true);
-        localStorage.setItem('travel_copilot_user', JSON.stringify(mappedUser));
-        localStorage.setItem('travel_copilot_token', data.session.access_token);
-        localStorage.setItem('travel_copilot_is_anon', 'true');
+      // If Supabase cloud anonymous auth is unconfigured/disabled, create unique anonymous UUID session
+      if (!userId) {
+        userId = `anon-${crypto.randomUUID()}`;
+        accessToken = `demo-jwt-token-${userId}`;
       }
+
+      const mappedUser: User = {
+        id: userId,
+        name: 'Guest Traveler',
+        email: '',
+        travel_style: 'Balanced',
+        preferred_currency: 'INR',
+        created_at: new Date().toISOString()
+      };
+
+      setUser(mappedUser);
+      setToken(accessToken);
+      setIsAnonymous(true);
+      localStorage.setItem('travel_copilot_user', JSON.stringify(mappedUser));
+      localStorage.setItem('travel_copilot_token', accessToken);
+      localStorage.setItem('travel_copilot_is_anon', 'true');
     } finally {
       setIsLoading(false);
     }

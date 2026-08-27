@@ -38,6 +38,10 @@ export const App: React.FC = () => {
             element={<ProtectedRoute><TripPlannerPage /></ProtectedRoute>} 
           />
           <Route 
+            path="/planner" 
+            element={<ProtectedRoute><TripPlannerPage /></ProtectedRoute>} 
+          />
+          <Route 
             path="/assistant" 
             element={<ProtectedRoute><AIAssistantPage /></ProtectedRoute>} 
           />
