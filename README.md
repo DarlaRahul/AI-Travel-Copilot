@@ -1,121 +1,176 @@
-# ✈️ AI Travel Copilot — Enterprise Full-Stack Autonomous Travel Platform
+# ✈️ AI Travel Copilot
 
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI_0.110-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/Frontend-React_19_|_TypeScript-61DAFB?logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Bundler-Vite_8-646CFF?logo=vite&logoColor=white)](https://vitejs.dev)
-[![Scikit-Learn](https://img.shields.io/badge/Machine_Learning-Scikit--Learn-F7931E?logo=scikitlearn&logoColor=white)](https://scikit-learn.org)
-[![TailwindCSS](https://img.shields.io/badge/Styling-Tailwind_CSS-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+**Developed & Customized by Darla Rahul**
 
-> **"Explore Anywhere in the World, Find the Best Way to Get There, Find a Place to Stay, and Continue to Booking."**  
-> An intelligent, truthful full-stack travel platform powered by Multi-Agent AI, Global Open APIs, Live Flight & Hotel Adapters (Amadeus), 0/1 Knapsack Budget Optimization with Dynamic Daily Spending, and TSP Geographic Route Scheduling.
+> **Explore anywhere in the world, plan smarter, find the right way to get there, choose a stay that fits your trip, and continue to booking.**
 
----
+AI Travel Copilot is a full-stack AI travel planning platform that brings destination discovery, conversational trip planning, itinerary generation, budget optimization, live flight and hotel discovery, multilingual assistance, and personalized recommendations into one experience.
 
-## 🌟 Key Platform Capabilities
+## 🌍 What the Platform Does
 
-- 🌍 **Worldwide Location Resolution & Discovery**: Location-driven (not dataset-driven). Seamlessly resolves any city, landmark, or island across the globe using OpenStreetMap Nominatim with rate-limit protection and caching.
-- 🏛️ **Live Attractions & POIs Discovery**: Dynamically retrieves verified tourist attractions, museums, viewpoints, and parks via OpenStreetMap Overpass API with authentic GPS coordinates and non-repeating daily itineraries.
-- 🖼️ **Dynamic Destination Images**: Real-time landmark images retrieved directly from Wikimedia Commons API with proper creative commons attribution and fallback.
-- 🌤️ **Live Global Meteorological Radar**: Integrated with Open-Meteo for real-time temperatures, apparent conditions, rain probabilities, wind speeds, clothing recommendations, and 5-day daily forecasts without API keys.
-- ✈️ **Live Flight Search & Ranking Engine**: Amadeus GDS adapter supporting test and production environments. Ranks flights deterministically into **Best Overall, Cheapest, Fastest, Fewest Stops, Best Value**. Includes legitimate provider booking handoff.
-- 🏨 **Hotel Inventory & Room Offers (V3)**: Amadeus Hotel Search V3 adapter displaying authentic room types, nightly prices, total stay rates, taxes, cancellation policies, and verified amenities.
-- 💎 **Trip Planner Luxury Synchronization**: Clicking "Luxury" automatically updates recommended budget, hotel tier (4-5 star luxury), activities, and daily spending allowance.
-- 💳 **Dynamic Daily Spending Control**: Customize daily allowance (₹2,000, ₹3,000, ₹5,000, ₹10,000, or Custom) synchronized with total trip duration and budget breakdown.
-- 🤖 **Multilingual Conversational Copilot**: Multi-turn AI assistant capable of conversational trip planning, flight searches, hotel queries, and multilingual support in **English, Hindi (हिंदी), Telugu (తెలుగు), Spanish (Español), French (Français), German (Deutsch), and Japanese (日本語)**.
-- 🚨 **Global Emergency Services Directory**: Built-in directory of official police, ambulance, fire, and tourist security contacts across major countries worldwide.
-- 📈 **Dynamic Pricing & Revenue Engine**: Analyzes travel demand, seasonality factors, and recommended pricing to optimize booking yield.
-- 💰 **0/1 Knapsack Budget Tracker**: Real-time expense logging, category breakdown, and contingency buffer tracking.
+- 🤖 **Conversational AI Travel Consultant** — understands natural requests such as “I want to travel from Hyderabad to Dubai for 5 days with my wife on a ₹70,000 budget,” asks for missing details, checks feasibility, and keeps the conversation context.
+- 🌎 **Worldwide Destination Discovery** — resolves cities, landmarks, islands, and other travel destinations globally rather than relying on a small hardcoded destination list.
+- 🏛️ **Tourist-Focused Place Discovery** — prioritizes genuine attractions, landmarks, museums, heritage sites, viewpoints, parks, and other travel-relevant places while filtering irrelevant commercial POIs.
+- ✈️ **Live Flight Discovery** — searches available flight options, ranks them as Best Overall, Cheapest, Fastest, Fewest Stops, and Best Value, and provides legitimate booking handoffs.
+- 🏨 **Hotel & Room Discovery** — finds stays near the searched destination or selected place, shows prices and distance where available, and scopes room information to the selected hotel.
+- 🗺️ **Smart Itinerary Planning** — creates realistic day-by-day schedules using real places, geographic grouping, travel time, opening hours where available, budget constraints, interests, and travel style.
+- 💎 **Luxury Mode** — automatically adjusts spending guidance, accommodation preference, and recommendations when Luxury is selected.
+- 💰 **Budget Intelligence** — supports trip budgets, daily spending, budget optimization, affordability checks, expense tracking, and explainable trade-offs.
+- 🌦️ **Weather-Aware Planning** — uses current forecast information to help place outdoor activities more intelligently when conditions warrant changes.
+- 🌐 **Multilingual Travel Assistant** — supports conversational travel planning across English, Hindi, Telugu, Tamil, Spanish, French, Arabic, Japanese, and other supported languages while preserving trip context.
+- 🔄 **Trip Optimization** — can improve route order, activity balance, budget fit, hotel convenience, and other planning factors without replacing the user's whole trip.
+- 🏙️ **Multi-City Planning** — supports itineraries spanning multiple destinations with per-city activities, accommodation, transport, dates, and budget allocation.
+- 🚨 **Travel Disruption Support** — identifies affected trip components and helps suggest alternatives when supported disruption information is available.
+- 👤 **Personalized Travel Profiles** — stores travel preferences such as style, currency, interests, accommodation preferences, and other supported personalization settings.
+- 📊 **Trip Health & Readiness** — provides planning quality indicators based on explainable factors such as budget fit, travel efficiency, schedule density, bookings, and readiness items.
+- 🧳 **Packing & Travel Preparation** — generates destination- and weather-aware packing guidance and readiness checklists.
+- 🔔 **Price Alerts** — lets users create price thresholds for supported flights and hotels.
+- 🔍 **Flight & Hotel Comparisons** — compare multiple options side by side before making a decision.
+- 📅 **Saved Trips, Export & Sharing** — save, edit, duplicate, share, print/export, and continue working on trips.
 
----
+## 🧠 Intelligent Planning Approach
 
-## 🏗️ System Architecture
+The platform separates **destination relevance** from simple proximity:
 
+```text
+User Request
+    ↓
+Destination Resolution
+    ↓
+Verified Travel Candidates
+    ↓
+Tourist Relevance + User Preferences
+    ↓
+Geographic Grouping + Travel Time
+    ↓
+Opening Hours + Weather + Budget
+    ↓
+Itinerary Optimization
+    ↓
+Flights + Hotels + Rooms
+    ↓
+Explainable Recommendations
 ```
-                                  ┌────────────────────────────────────────┐
-                                  │       React 19 + TypeScript Frontend   │
-                                  │   (Vite + Tailwind CSS + Leaflet Maps) │
-                                  └───────────────────┬────────────────────┘
-                                                      │ REST APIs & Auth JWT
-                                                      ▼
-                                  ┌────────────────────────────────────────┐
-                                  │         FastAPI High-Speed Backend     │
-                                  └─┬───────────────┬────────────────┬─────┘
-                                    │               │                │
-             ┌──────────────────────┴──────┐ ┌──────┴──────┐ ┌───────┴───────────────────────┐
-             │      Multi-Agent System     │ │  Live APIs  │ │      Data & Optimization      │
-             ├─────────────────────────────┤ ├─────────────┤ ├───────────────────────────────┤
-             │ • Planner Agent             │ │ • Nominatim │ │ • SQLite Relational DB        │
-             │ • Supervisor Agent (NLP)    │ │ • Overpass  │ │ • 0/1 Knapsack Optimizer      │
-             │ • Disruption Radar Agent    │ │ • Open-Meteo│ │ • TSP Route Optimizer         │
-             │ • Dynamic Pricing Engine    │ │ • Wikimedia │ │ • Amadeus Flights & Hotels    │
-             └─────────────────────────────┘ └─────────────┘ └───────────────────────────────┘
-```
 
----
+Hotels are independently evaluated against the searched location and, when applicable, the actual itinerary rather than being selected only because a provider returned them nearby.
+
+## 🛠️ Technology Stack
+
+### Frontend
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Responsive UI components
+- Leaflet-based maps
+
+### Backend
+- Python
+- FastAPI
+- SQLAlchemy
+- Pydantic
+- Modular travel and optimization services
+
+### Data & Travel Services
+- Supabase PostgreSQL and Authentication
+- `trvl` travel provider for live flight/hotel discovery where supported
+- OpenStreetMap / Nominatim
+- Overpass API
+- Open-Meteo
+- Wikimedia Commons / related open image sources
+
+## 🔐 Supabase & Data Security
+
+Supabase is used for authentication and persistent user data. User-owned data is protected using authenticated-user ownership rules and Row Level Security where configured.
+
+The Demo flow uses real Supabase anonymous authentication rather than a shared hardcoded demo identity.
 
 ## 🚀 Getting Started
 
-### 1. Prerequisites
-- **Python 3.10+** (Tested on Python 3.12)
-- **Node.js 18+** & **npm**
+### Prerequisites
 
-### 2. Environment Configuration
-Copy `.env.example` to `.env`:
+- Python 3.10+
+- Node.js 18+
+- npm
+
+### Backend
+
 ```bash
-cp .env.example .env
-```
-
-Key environment variables:
-| Variable | Description | Default |
-|---|---|---|
-| `VITE_API_BASE_URL` | Backend API base URL | `http://localhost:8000/api` |
-| `AMADEUS_CLIENT_ID` | Amadeus API Key (Flights & Hotels) | *Optional* |
-| `AMADEUS_CLIENT_SECRET` | Amadeus API Secret | *Optional* |
-| `AMADEUS_ENVIRONMENT` | `test` or `production` | `test` |
-| `USE_DEMO_DATA` | Enables deterministic labeled demo data when live provider is unconfigured | `false` |
-| `DATABASE_URL` | SQLite database URI | `sqlite:///./travel_copilot.db` |
-| `JWT_SECRET` | JWT authentication signing secret | *Auto-configured* |
-
-> [!NOTE]
-> OpenStreetMap Nominatim, Overpass POIs, Open-Meteo Weather, and Wikimedia Commons work globally without requiring any API keys.
-
----
-
-### 3. Backend Setup
-```bash
-# In project root:
-# Install Python dependencies
 pip install -r requirements.txt
-
-# Start FastAPI server
 uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-* Backend API: **`http://localhost:8000`**
-* Interactive Swagger API Docs: **`http://localhost:8000/docs`**
 
----
+Backend API:
 
-### 4. Frontend Setup
+`http://localhost:8000`
+
+Swagger:
+
+`http://localhost:8000/docs`
+
+### Frontend
+
 ```bash
-# In a new terminal window:
 cd frontend
 npm install
 npm run dev
 ```
-* Frontend application: **`http://localhost:5173`**
 
----
+Frontend:
 
-## 🧪 Automated Testing
+`http://localhost:5173`
 
-Run the full automated test suite:
+### Environment
+
+Copy `.env.example` to your local environment file and configure the values required for your deployment. Never commit private keys, database passwords, service-role keys, or other secrets.
+
+The project is designed to use open travel data sources without requiring a paid key for every destination-discovery function. Live provider availability can still depend on the current provider and its access conditions.
+
+## 🧪 Testing
+
+Run the backend tests:
+
 ```bash
 python -m pytest backend/tests/test_api.py -v
 ```
 
----
+Run the frontend checks:
 
-## 📜 License
+```bash
+cd frontend
+npm run build
+npm run lint
+```
 
-This project is licensed under the [MIT License](LICENSE).
+Additional project verification scripts are available under `scratch/` where applicable.
+
+## 📁 Repository Structure
+
+```text
+AI-Travel-Copilot/
+├── backend/
+├── frontend/
+├── supabase/
+├── bin/
+├── data/
+├── datasets/
+├── models/
+├── scripts/
+├── scratch/
+├── .env.example
+├── TRVL_ATTRIBUTION.md
+├── requirements.txt
+└── README.md
+```
+
+## 📜 Attribution & Licensing
+
+This repository contains a customized and extended implementation based on an existing AI Travel Copilot codebase. Original open-source licensing and applicable attribution are retained in the repository's `LICENSE` file.
+
+The `trvl` provider is separately attributed in `TRVL_ATTRIBUTION.md` and is subject to its own license terms.
+
+## 👨‍💻 Project
+
+**AI Travel Copilot**
+
+**Developed & Customized by Darla Rahul**
