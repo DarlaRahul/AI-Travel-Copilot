@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const mappedUser: User = {
             id: authUser.id,
             name: displayName,
-            email: authUser.email || (isAnon ? 'anonymous@travelcopilot.ai' : ''),
+            email: authUser.email || '',
             travel_style: authUser.user_metadata?.travel_style || APP_CONFIG.defaultTravelStyle,
             preferred_currency: authUser.user_metadata?.preferred_currency || APP_CONFIG.defaultCurrency,
             created_at: authUser.created_at || new Date().toISOString()
@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const mappedUser: User = {
             id: authUser.id,
             name: displayName,
-            email: authUser.email || (isAnon ? 'anonymous@travelcopilot.ai' : ''),
+            email: authUser.email || '',
             travel_style: authUser.user_metadata?.travel_style || APP_CONFIG.defaultTravelStyle,
             preferred_currency: authUser.user_metadata?.preferred_currency || APP_CONFIG.defaultCurrency,
             created_at: authUser.created_at || new Date().toISOString()
@@ -233,7 +233,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const mappedUser: User = {
           id: data.user.id,
           name: 'Guest Traveler',
-          email: 'anonymous@travelcopilot.ai',
+          email: '',
           travel_style: 'Balanced',
           preferred_currency: 'INR',
           created_at: data.user.created_at || new Date().toISOString()

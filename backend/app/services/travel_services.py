@@ -219,8 +219,51 @@ def _nearby_places_cached(latitude: float, longitude: float, radius: int = 15000
     except Exception:
         return ()
 
+    # Tourist relevance category scores
+    CATEGORY_SCORES = {
+        "museum": 95, "attraction": 90, "archaeological_site": 88, "castle": 95,
+        "fort": 95, "palace": 95, "cathedral": 88, "gallery": 80, "viewpoint": 75,
+        "monument": 85, "ruins": 80, "memorial": 70, "mosque": 82, "temple": 82,
+        "church": 82, "heritage": 85, "tomb": 75, "zoo": 70, "theme_park": 70,
+        "arts_centre": 65, "wayside_shrine": 55, "nature_reserve": 65,
+        "waterfall": 88, "peak": 80, "beach": 85, "park": 50,
+        "building": 35, "yes": 15,
+    }
+
+    # Patterns for irrelevant/non-tourist POIs to reject
+    REJECT_RE = re.compile(
+        r"\b(college|school|university|institute|hospital|clinic|pharmacy|blood bank|"
+        r"bank|atm|petrol|fuel|supermarket|grocery|mart|salon|barber|laundry|tailor|"
+        r"police|court|government|municipal|corporation|ghmc|sports complex|stadium|"
+        r"cricket ground|badminton|swimming pool|bus stop|bus stand|railway station|"
+        r"metro station|junior college|degree college|engineering college|medical college|"
+        r"apartment|residency|flat|colony park|society park)\b",
+        re.IGNORECASE
+    )
+
+    def _tourist_score(tags: dict, name: str) -> int:
+        raw_cat = (tags.get("tourism") or tags.get("historic") or
+                   tags.get("leisure") or tags.get("natural") or "")
+        score = CATEGORY_SCORES.get(raw_cat.lower(), 30)
+        # Wikipedia/Wikidata are the strongest tourist importance signals
+        if tags.get("wikipedia"):
+            score += 45
+        if tags.get("wikidata"):
+            score += 35
+        if tags.get("wikimedia_commons"):
+            score += 15
+        if tags.get("heritage"):
+            score += 25
+        if tags.get("website") or tags.get("contact:website"):
+            score += 10
+        if tags.get("opening_hours"):
+            score += 8
+        if len(name) < 4:
+            score -= 20
+        return score
+
     results = []
-    seen_names = set()
+    seen_names: set[str] = set()
     for el in elements:
         tags = el.get("tags", {})
         name = tags.get("name:en") or tags.get("int_name") or tags.get("name:int") or tags.get("name")
@@ -229,10 +272,14 @@ def _nearby_places_cached(latitude: float, longitude: float, radius: int = 15000
             continue
         if name in seen_names:
             continue
+        # Reject irrelevant POIs (schools, hospitals, banks, etc.)
+        if REJECT_RE.search(name):
+            continue
         seen_names.add(name)
 
         category = tags.get("tourism") or tags.get("historic") or tags.get("leisure") or tags.get("natural") or "Attraction"
         category_formatted = category.replace("_", " ").title()
+        score = _tourist_score(tags, name)
 
         results.append({
             "id": f"{el['type']}-{el['id']}",
@@ -247,10 +294,14 @@ def _nearby_places_cached(latitude: float, longitude: float, radius: int = 15000
             "coordinates": {"latitude": point["lat"], "longitude": point["lon"]},
             "rating": None,
             "price": None,
-            "source": "OpenStreetMap"
+            "source": "OpenStreetMap",
+            "_score": score,
         })
 
-    results.sort(key=lambda x: x["name"])
+    # Sort by tourist relevance descending (most important first)
+    results.sort(key=lambda x: x["_score"], reverse=True)
+    for r in results:
+        r.pop("_score", None)
     return tuple(results)
 
 
