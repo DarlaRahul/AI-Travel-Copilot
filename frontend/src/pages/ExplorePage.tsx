@@ -54,6 +54,8 @@ export const ExplorePage: React.FC = () => {
     setLoading(true);
     setLoadingPlaces(true);
     setOffset(0);
+    setDestinationMeta(null);
+    setPlaces([]);
     try {
       const locRes = await travelApi.resolveDestination(cityName);
       setDestinationMeta(locRes.data);
