@@ -1,483 +1,309 @@
-# ✈️ AI Travel Copilot
+# AI Travel Copilot
 
-### A conversational, intelligent travel planning platform built by **Darla Rahul**
+A full-stack travel planning application that brings destination discovery, itinerary planning, flight and hotel search, budgeting, maps, and conversational assistance into one place.
 
-> **Tell it where you want to go. It figures out what it needs to know, checks what is realistic, builds the trip, finds places to visit, compares travel and stays, and helps you continue to booking.**
+**Built and maintained by Darla Rahul.**
 
----
+[![Repository](https://img.shields.io/badge/GitHub-Repository-181717?logo=github&logoColor=white)](https://github.com/DarlaRahul/AI-Travel-Copilot)
+[![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB?logo=react&logoColor=111827)](https://react.dev/)
+[![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Supabase](https://img.shields.io/badge/Database%20%26%20Auth-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Vite](https://img.shields.io/badge/Build-Vite-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 
-## 🌍 Overview
-
-**AI Travel Copilot** is a full-stack travel assistant designed around the way people actually plan trips — through conversation rather than rigid forms.
-
-Instead of forcing a traveler to enter every detail upfront, the assistant can progressively understand a request such as:
-
-> *"I want to go to Paris. I live in Hyderabad. I have 5 days and I'm travelling with my family."*
-
-It can then identify the missing information, ask natural follow-up questions about **budget, travelers, dates, interests, and travel style**, evaluate feasibility, and use the resulting context across the rest of the application.
-
-The platform combines conversational AI with destination discovery, tourist-place relevance scoring, geographic itinerary optimization, live travel search, hotel proximity analysis, budgeting, weather-aware planning, multilingual interaction, and persistent trip management.
-
----
-
-## ✨ Why This Project Is Different
-
-Most travel planners begin with a large form and return a static list.
-
-AI Travel Copilot is designed as a **planning workflow**:
-
-```text
-Natural Language Request
-        ↓
-Understand Intent & Missing Details
-        ↓
-Conversational Clarification
-        ↓
-Budget & Feasibility Analysis
-        ↓
-Destination & Tourist-Place Discovery
-        ↓
-Geographic Itinerary Planning
-        ↓
-Weather / Time / Travel Constraints
-        ↓
-Flight & Hotel Recommendations
-        ↓
-Budget Optimization
-        ↓
-Save / Compare / Export / Continue Booking
-```
-
-The goal is not simply to generate text. The goal is to turn an incomplete travel idea into a **usable, explainable trip plan**.
+<p align="center">
+  <a href="https://github.com/DarlaRahul/AI-Travel-Copilot">View Repository</a> •
+  <a href="https://github.com/DarlaRahul/AI-Travel-Copilot/issues">Report an Issue</a> •
+  <a href="https://github.com/DarlaRahul/AI-Travel-Copilot/pulls">Contribute</a>
+</p>
 
 ---
 
-# 🧠 AI Travel Consultant
+## About the project
 
-The assistant is built around conversational planning rather than fixed question-and-answer templates.
+AI Travel Copilot was built to solve a practical problem: travel planning usually means jumping between several websites and keeping track of the information manually.
 
-### Example
+This project brings those steps together in a single application. A user can explore a destination, find relevant places, build an itinerary, search flights and hotels, review the budget, and save the resulting trip.
 
-**Traveler:**
-> I want to go somewhere for a vacation.
+The application also includes a conversational assistant that can collect trip requirements and use them while planning.
 
-**Copilot:**
-> Sure — where are you thinking of going?
+The emphasis is on **useful travel data, sensible geographic planning, and a clean end-to-end workflow** rather than simply generating a block of AI text.
 
-**Traveler:**
-> Paris.
+---
 
-**Copilot:**
-> Nice choice. Where will you be travelling from?
+## Main features
 
-The assistant can progressively collect:
+### Destination discovery
+
+- Search destinations and locations
+- Discover tourist attractions and points of interest
+- Rank relevant tourist locations above generic commercial POIs
+- Display locations on an interactive map
+- Show destination imagery where available
+- Support location-based discovery
+
+### Itinerary planning
+
+- Generate multi-day itineraries
+- Organise attractions geographically
+- Reduce unnecessary backtracking
+- Account for travel time between stops
+- Add and remove places from a day
+- Recalculate the itinerary after changes
+- Support different travel styles
+- Support local and international trips
+- Support multi-city planning
+
+### Flights
+
+- Search flight routes
+- Display available flight offers from the configured travel provider
+- Compare price, duration and stops
+- Highlight useful options such as cheapest, fastest and best overall
+- Provide a booking handoff rather than claiming a booking was completed
+
+### Hotels
+
+- Search hotels around a destination or specific searched location
+- Calculate distance from the searched location
+- Filter geographically irrelevant results
+- Display hotel information and available room information
+- Compare hotel options
+- Keep room results associated with the selected property
+
+### Budget planning
+
+- Set a trip budget
+- Estimate spending across major categories
+- Check whether a proposed trip is realistic for the supplied budget
+- Adjust recommendations based on travel style
+- Recalculate budget impact when the itinerary changes
+
+### Conversational assistant
+
+The assistant can collect information progressively instead of requiring every field before the conversation starts.
+
+Typical trip information includes:
 
 - Origin
 - Destination
-- Travel dates / duration
-- Number of travelers
-- Adults / children where supported
+- Dates or duration
+- Number of travellers
 - Budget
-- Travel style
 - Interests
-- Accommodation preference
-- Other trip constraints
-
-It also performs **budget feasibility reasoning** instead of inventing unrealistic deals.
-
-For example, a very low budget for an international multi-day trip can be flagged as unrealistic and followed by practical alternatives rather than fabricated flight or hotel prices.
-
----
-
-# 🌐 Multilingual Conversations
-
-The Copilot is designed to understand and respond across multiple languages while retaining the trip context.
-
-Supported language flows include:
-
-- 🇬🇧 English
-- 🇮🇳 Hindi — हिंदी
-- 🇮🇳 Telugu — తెలుగు
-- 🇮🇳 Tamil — தமிழ்
-- 🇪🇸 Spanish — Español
-- 🇫🇷 French — Français
-- 🇸🇦 Arabic — العربية
-- 🇯🇵 Japanese — 日本語
-
-A traveler can switch languages during a conversation without restarting the planning process.
-
----
-
-# 🗺️ Intelligent Destination Discovery
-
-The platform does not treat every nearby point as a tourist attraction.
-
-It uses location data and relevance logic to prioritize:
-
-- Major landmarks
-- Historical sites
-- Museums
-- Heritage locations
-- Viewpoints
-- Parks
-- Cultural attractions
-- Popular visitor destinations
-- Other travel-relevant points of interest
-
-Irrelevant commercial locations such as generic shops, pharmacies, banks, salons, offices, and similar POIs are filtered or deprioritized.
-
-Destination searches are designed to remain globally useful instead of depending on a small hardcoded city list.
-
----
-
-# 🧭 Smart Itinerary Engine
-
-The itinerary planner focuses on **where places are**, not just what places are called.
-
-It considers factors such as:
-
-- Geographic proximity
-- Travel time
-- Attraction relevance
-- Daily schedule density
-- Opening hours where available
-- Weather information where available
-- Traveler preferences
-- Budget constraints
 - Travel style
-- Existing activities
+- Accommodation preferences
 
-### Example
+The project also includes multilingual conversation support for English, Telugu, Hindi, Tamil, Spanish, French, Arabic and Japanese.
 
-Instead of:
+### Trip management
 
-```text
-Day 1: Attraction A → Attraction B → Attraction C
-Day 2: Attraction D → Attraction E
-```
+Depending on the configured features and data source, the application includes:
 
-with unnecessary cross-city travel, the planner aims to group geographically sensible locations together and reduce backtracking.
-
-### Itinerary controls
-
-- Add a place
-- Remove a place
-- Recalculate the route
-- Recalculate time allocation
-- Recalculate budget impact
-- Change travel style
-- Change accommodation preference
-- Generate different trip lengths
-- Support local and international trips
-- Support multi-city travel
-
----
-
-# ✈️ Flights
-
-The flight experience is integrated into the overall planning workflow instead of being an isolated search screen.
-
-Flight results can include:
-
-- Airline
-- Flight number
-- Departure / arrival information
-- Duration
-- Stops
-- Price
-- Recommendation ranking
-- Booking handoff
-
-Results can be categorized using recommendation labels such as:
-
-**Best Overall · Cheapest · Fastest · Fewest Stops · Best Value**
-
-The application is designed to distinguish live provider data from fallback/demo data rather than presenting fabricated prices as real results.
-
----
-
-# 🏨 Hotels & Rooms
-
-Hotel recommendations are evaluated against the **actual searched location**.
-
-The system can consider:
-
-- Destination
-- Specific landmark / neighborhood search
-- Geographic distance
-- Price
-- Rating
-- Hotel category
-- Availability information returned by the provider
-- Room-level information
-
-If a traveler searches around a particular attraction, hotel recommendations should prioritize properties around that location rather than simply returning arbitrary hotels from the wider region.
-
-Room information is scoped to the selected hotel.
-
----
-
-# 💰 Budget Intelligence
-
-Travel planning is not complete without understanding whether the trip is affordable.
-
-The project includes budget-oriented functionality for:
-
-- Total trip budget
-- Daily spending guidance
-- Accommodation allocation
-- Transportation allocation
-- Activities
-- Food / miscellaneous spending
-- Contingency planning
-- Expense tracking
-- Budget optimization
-- Affordability analysis
-
-Changing travel style or accommodation preference can influence spending recommendations.
-
----
-
-# 🌦️ Weather-Aware Planning
-
-Weather information can be incorporated into travel planning to help travelers understand conditions before committing to outdoor-heavy schedules.
-
-The platform can use forecast information for:
-
-- Temperature
-- Apparent conditions
-- Rain probability
-- Wind
-- Clothing guidance
-- Daily planning decisions
-
----
-
-# 💎 Travel Styles
-
-The planner supports different planning preferences rather than assuming every traveler wants the same schedule.
-
-Examples include:
-
-- Relaxed
-- Balanced
-- Packed
-- Luxury
-- Budget-oriented planning
-
-Luxury planning can increase accommodation and spending recommendations, while relaxed planning can reduce schedule density.
-
----
-
-# 🏙️ Multi-City Travel
-
-The architecture supports trips involving multiple destinations.
-
-A multi-city plan can account for:
-
-```text
-City A
-  ↓
-Transport
-  ↓
-City B
-  ↓
-Transport
-  ↓
-City C
-```
-
-with accommodation, activities, timing, and budget considered across the journey.
-
----
-
-# 📊 Trip Intelligence & Optimization
-
-The platform includes additional planning intelligence such as:
-
-- Route optimization
-- Trip health scoring
-- Travel readiness
-- Budget optimization
-- Hotel-itinerary matching
-- Daily spending control
-- Travel profile personalization
-- Accessibility considerations
-- Food planning
-- Day-trip planning
-- Near-me discovery
-- Stopover planning
-- Travel disruption support
-
-These features are intended to work together as part of the trip lifecycle rather than as disconnected widgets.
-
----
-
-# 🔐 Authentication & Persistence
-
-Supabase is used for cloud authentication and persistent user data where configured.
-
-The application supports:
-
-- Authentication
-- Anonymous/demo sessions through the configured Supabase flow
-- User-specific trip persistence
 - Saved trips
-- Itinerary persistence
-- Budget persistence
-- User data isolation through ownership policies / RLS where configured
-
-Private credentials and service-role keys should never be committed to the repository.
-
----
-
-# 📸 Maps & Destination Photos
-
-The application combines location coordinates with destination imagery to make planning visual as well as conversational.
-
-The implementation includes safeguards for:
-
-- Correct destination context
-- Correct attraction coordinates
-- Correct hotel coordinates
-- Stale image prevention
-- Image fallbacks
-- Map markers representing actual locations
-
----
-
-# 🧳 Travel Preparation
-
-Beyond booking, the platform includes tools for preparing for the trip:
-
+- Trip editing
+- Trip duplication
+- Trip deletion
+- Trip sharing / collaboration
+- Price alerts
 - Packing assistance
 - Travel readiness
-- Document checklist
-- Trip health
+- Trip health information
 - Calendar export
 - Itinerary export
-- Travel journal / post-trip functionality
-- Saved and shareable trips
+- Travel journal / post-trip information
 
 ---
 
-# 🔎 Comparison & Decision Support
-
-Travelers can compare options instead of accepting the first result.
-
-### Flight comparison
-
-Compare supported flight attributes such as:
-
-- Price
-- Duration
-- Stops
-- Departure
-- Arrival
-
-### Hotel comparison
-
-Compare supported hotel attributes such as:
-
-- Price
-- Rating
-- Distance
-- Amenities
-- Cancellation information
-
----
-
-# 🏗️ Architecture
+## Application flow
 
 ```text
-┌───────────────────────────────────────────────────────────┐
-│                    React + TypeScript                     │
-│                                                           │
-│ Explore │ Assistant │ Planner │ Flights │ Hotels │ Trips │
-└───────────────────────────┬───────────────────────────────┘
-                            │
-                         REST / Auth
-                            │
-                            ▼
-┌───────────────────────────────────────────────────────────┐
-│                         FastAPI                            │
-│                                                           │
-│ Assistant │ Trips │ Itinerary │ Flights │ Hotels │ Budget │
-└───────────────┬──────────────────┬────────────────────────┘
-                │                  │
-                ▼                  ▼
-      ┌─────────────────┐   ┌──────────────────────┐
-      │ Travel Providers│   │ Planning / AI Engine │
-      │                 │   │                      │
-      │ Flights         │   │ Intent & Context     │
-      │ Hotels          │   │ Route Optimization   │
-      │ Places          │   │ Budget Reasoning     │
-      │ Weather         │   │ Itinerary Generation │
-      └─────────────────┘   └──────────────────────┘
-                │                  │
-                └────────┬─────────┘
-                         ▼
-                ┌─────────────────┐
-                │ Supabase / Data │
-                │                 │
-                │ Auth            │
-                │ PostgreSQL      │
-                │ User Trips      │
-                │ Budgets         │
-                └─────────────────┘
+Explore a destination
+        │
+        ▼
+Find relevant places
+        │
+        ▼
+Plan the itinerary
+        │
+        ├──────────────► Search flights
+        │
+        ├──────────────► Search hotels
+        │
+        ▼
+Review route and budget
+        │
+        ▼
+Save / compare / export
+        │
+        ▼
+Continue to booking
 ```
 
 ---
 
-# 🛠️ Technology Stack
+## Technology stack
 
-| Layer | Technology |
+### Frontend
+
+| Technology | Purpose |
 |---|---|
-| Frontend | React, TypeScript, Vite |
-| Styling | Tailwind CSS |
-| Backend | Python, FastAPI |
-| Validation | Pydantic |
-| Database / Auth | Supabase PostgreSQL + Authentication |
-| Maps | Leaflet / location APIs |
-| Tourist Places | OpenStreetMap / Overpass ecosystem |
-| Geocoding | Nominatim |
-| Weather | Open-Meteo |
-| Images | Wikimedia Commons / supported image sources |
-| Travel Search | `trvl` provider integration |
-| Optimization | Geographic route optimization + budget optimization |
+| React | User interface |
+| TypeScript | Type-safe frontend development |
+| Vite | Development server and production build |
+| React Router | Application navigation |
+| Tailwind CSS | UI styling |
+| Leaflet | Interactive maps |
+| React Leaflet | React integration for maps |
+| Axios | HTTP requests |
+| Framer Motion | UI animation |
+| Lucide React | Icons |
+| Recharts | Charts and visual data |
+| Supabase JS | Authentication and Supabase client |
+
+### Backend
+
+| Technology | Purpose |
+|---|---|
+| Python | Backend development |
+| FastAPI | REST API |
+| Uvicorn | ASGI server |
+| Pydantic / Pydantic Settings | Validation and configuration |
+| SQLAlchemy | Database access / ORM |
+| PostgreSQL driver | PostgreSQL connectivity |
+| python-jose | JWT-related authentication support |
+| bcrypt | Password hashing support |
+| Pandas | Data processing |
+| Scikit-learn | Machine-learning utilities |
+| PuLP | Optimisation / planning support |
+| Pytest | Backend testing |
+| HTTPX | HTTP testing and client requests |
+
+### Data and services
+
+The project is structured to work with external travel and location services through its backend integrations. Provider configuration can vary by environment.
+
+The repository also contains the `trvl` travel-provider integration and its required attribution documentation.
 
 ---
 
-# 🚀 Running the Project Locally
+## Apps, services and tools used
 
-## Prerequisites
+- **GitHub** — source control and project hosting
+- **React** — frontend application
+- **Vite** — frontend development and build tooling
+- **FastAPI** — backend API
+- **Python** — backend and planning logic
+- **Supabase** — authentication and PostgreSQL data
+- **Leaflet / React Leaflet** — maps
+- **Axios** — API communication
+- **Tailwind CSS** — styling
+- **Framer Motion** — animations
+- **Lucide React** — interface icons
+- **Recharts** — data visualisation
+- **SQLAlchemy** — database layer
+- **Pydantic** — request and data validation
+- **Pandas / Scikit-learn / PuLP** — data processing and optimisation components
+- **Pytest** — automated backend tests
+- **`trvl`** — travel search provider integration
 
-- Python 3.10+
-- Node.js 18+
-- npm
+---
 
-## Backend
+## Architecture
 
-From the project root:
+```text
+                         ┌──────────────────────┐
+                         │      React App       │
+                         │   TypeScript + Vite  │
+                         └──────────┬───────────┘
+                                    │
+                              HTTP / JSON
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       FastAPI        │
+                         │        Backend       │
+                         └──────────┬───────────┘
+                                    │
+          ┌─────────────────────────┼─────────────────────────┐
+          │                         │                         │
+          ▼                         ▼                         ▼
+   Travel Providers          Planning Services         Supabase
+   Flights / Hotels          Itinerary / Budget        Auth / PostgreSQL
+   Places / Locations        Optimisation / AI         User Trips
+          │                         │                         │
+          └─────────────────────────┼─────────────────────────┘
+                                    │
+                                    ▼
+                              Trip Results
+```
+
+---
+
+## Project structure
+
+```text
+AI-Travel-Copilot/
+│
+├── backend/                 FastAPI application
+├── frontend/                React + TypeScript application
+├── supabase/                Database migrations
+├── bin/                     Travel provider binary
+├── data/                    Application data
+├── datasets/                Dataset resources
+├── models/                  Model / optimisation resources
+├── scripts/                 Utility scripts
+├── scratch/                 Development and verification utilities
+│
+├── .env.example             Environment variable template
+├── requirements.txt         Python dependencies
+├── TRVL_ATTRIBUTION.md      Travel provider attribution
+├── LICENSE                  Project license
+└── README.md                Project documentation
+```
+
+---
+
+## Running locally
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/DarlaRahul/AI-Travel-Copilot.git
+cd AI-Travel-Copilot
+```
+
+### 2. Install backend dependencies
 
 ```bash
 pip install -r requirements.txt
-uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Backend:
+### 3. Configure environment variables
+
+Copy `.env.example` to the appropriate local environment file and add the credentials required by your configuration.
+
+Do not commit API keys, database passwords, Supabase service-role keys or other private credentials.
+
+### 4. Start the backend
+
+```bash
+python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Backend API:
 
 ```text
 http://localhost:8000
 ```
 
-API documentation:
+Swagger documentation:
 
 ```text
 http://localhost:8000/docs
 ```
 
-## Frontend
+### 5. Start the frontend
 
 Open another terminal:
 
@@ -493,21 +319,9 @@ Frontend:
 http://localhost:5173
 ```
 
-## Environment
-
-Create your local environment from `.env.example` and configure the values required by your setup.
-
-**Never commit:**
-
-- API secrets
-- Supabase secret/service-role keys
-- Database passwords
-- Private tokens
-- Personal credentials
-
 ---
 
-# 🧪 Testing
+## Testing
 
 Backend tests:
 
@@ -528,80 +342,74 @@ Frontend lint:
 npm run lint
 ```
 
-Additional verification utilities are available under `scratch/` where included in the repository.
-
-> Test reports should only claim a feature as **PASS** when it has actually been executed and verified. Source-code inspection alone is not a substitute for runtime testing.
+Runtime features that depend on external services should be tested with those services configured and available. A source-code review should not be presented as a successful runtime test.
 
 ---
 
-# 📁 Project Structure
+## Configuration
+
+The project uses environment-based configuration so that secrets and deployment-specific settings remain outside the source code.
+
+Typical configuration areas include:
+
+- Supabase URL and public client key
+- Travel provider configuration
+- AI provider configuration where enabled
+- Database configuration where applicable
+- Frontend API URL
+
+See `.env.example` for the variables expected by the current repository.
+
+---
+
+## Screens / application areas
+
+The application is organised around several major areas:
+
+**Explore** — discover destinations, attractions, maps and related information.
+
+**Plan Itinerary** — create and modify a day-by-day trip.
+
+**Flights** — search and compare flight options.
+
+**Hotels** — search, filter and compare accommodation.
+
+**Assistant** — discuss a trip using natural language.
+
+**My Trips** — manage saved trips and planning information.
+
+---
+
+## Development notes
+
+This repository is intended to be developed as a complete application rather than a static UI prototype. The frontend communicates with the FastAPI backend, and backend services handle travel-data processing, planning logic and persistence integrations.
+
+When adding a new feature, the preferred flow is:
 
 ```text
-AI-Travel-Copilot/
-│
-├── backend/              # FastAPI backend and travel services
-├── frontend/             # React + TypeScript application
-├── supabase/             # Database migrations / Supabase configuration
-├── bin/                  # Travel provider binary where applicable
-├── data/                 # Project data resources
-├── datasets/             # Dataset resources
-├── models/               # Model / optimization resources
-├── scripts/              # Utility scripts
-├── scratch/              # Verification and development utilities
-│
-├── .env.example
-├── requirements.txt
-├── TRVL_ATTRIBUTION.md
-└── README.md
+UI → API endpoint → service layer → provider / database → validated response → UI
 ```
 
----
-
-# 🎯 Project Goals
-
-The project is built around five core ideas:
-
-### 1. Conversation over forms
-Let travelers explain what they want naturally.
-
-### 2. Realistic planning over hallucination
-If a budget or plan is unrealistic, explain why and suggest alternatives.
-
-### 3. Relevant places over random POIs
-Recommend places people would actually want to visit.
-
-### 4. Geography over arbitrary ordering
-Build itineraries that make sense on a map and reduce unnecessary travel.
-
-### 5. One continuous trip workflow
-Move from:
-
-**Idea → Conversation → Destination → Itinerary → Flights → Hotels → Budget → Booking → Trip Management**
-
-without forcing the traveler to start over at every step.
+This keeps provider-specific logic out of the frontend and makes the application easier to maintain.
 
 ---
 
-# 👨‍💻 Developer
+## License and attribution
 
-## Darla Rahul
+See [`LICENSE`](LICENSE) for the project license and [`TRVL_ATTRIBUTION.md`](TRVL_ATTRIBUTION.md) for the required attribution associated with the travel-provider component.
 
-**AI Travel Copilot**
-
-A full-stack AI travel planning project focused on conversational AI, travel intelligence, geographic optimization, live travel discovery, personalization, and practical trip execution.
+Third-party libraries and services remain subject to their respective licenses and terms.
 
 ---
 
-# 📜 Licensing & Attribution
+## Developer
 
-This repository is distributed under the license included in `LICENSE`.
+**Darla Rahul**
 
-Applicable third-party and provider licensing information is documented in the repository, including `TRVL_ATTRIBUTION.md`.
-
-See the repository license and attribution files before redistributing the project or its components.
+AI Travel Copilot is a portfolio project focused on full-stack development, conversational interfaces, travel-data integration, geographic planning, optimisation and practical product design.
 
 ---
 
-## ⭐ AI Travel Copilot
+## Repository
 
-**Plan less. Understand more. Travel smarter.**
+[github.com/DarlaRahul/AI-Travel-Copilot](https://github.com/DarlaRahul/AI-Travel-Copilot)
