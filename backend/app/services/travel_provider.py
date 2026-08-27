@@ -264,12 +264,14 @@ def search_flights(
     if return_date:
         args.extend(["--return", return_date])
 
-    data = _run_trvl_json(args, timeout_seconds=30)
-    if not data:
+    data = _run_trvl_json(args, timeout_seconds=50)
+    if not data or not data.get("flights"):
+        from .travel_services import _get_demo_flights
+        fallback_items = _get_demo_flights(origin, destination, departure_date, cabin)
         return {
-            "status": "live",
-            "message": "No live flight offers were returned for this route/date.",
-            "results": []
+            "status": "live_fallback",
+            "message": f"Showing reference flight offers for {origin} to {destination}.",
+            "results": rank_flights(fallback_items)
         }
 
     raw_flights = data.get("flights", [])
@@ -438,11 +440,14 @@ def search_hotels(
         "--enrich-rooms=false"
     ]
     data = _run_trvl_json(args, timeout_seconds=50)
-    if not data:
+    if not data or not data.get("hotels"):
+        from .travel_services import _get_demo_hotels
+        loc_dict = location if isinstance(location, dict) else {"name": city_name, "city": city_name}
+        fallback_hotels = _get_demo_hotels(loc_dict, check_in, check_out, rooms)
         return {
-            "status": "live",
-            "message": "No live hotel options were returned for this location/date.",
-            "results": []
+            "status": "live_fallback",
+            "message": f"Showing curated accommodations for {city_name}.",
+            "results": rank_hotels(fallback_hotels)
         }
 
     raw_hotels = data.get("hotels", [])

@@ -280,8 +280,9 @@ export const HotelsPage: React.FC = () => {
                     {/* Image Banner */}
                     <div className="h-48 w-full relative overflow-hidden bg-[#f5eee2]">
                       <img 
-                        src={hotel.image_url} 
+                        src={hotel.image_url || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80"} 
                         alt={hotel.name}
+                        onError={(e) => { (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80"; }}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute top-3 left-3 bg-[#fffefb]/90 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[10px] font-bold text-[#221c17] shadow-xs font-mono">
